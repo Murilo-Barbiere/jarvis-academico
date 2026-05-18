@@ -1,0 +1,16 @@
+openai
+python-dotenv
+
+# RAG (embeddings + split + busca)
+sentence-transformers
+faiss-cpu
+pypdf
+
+# Banco de dados
+sqlalchemy
+
+# Interface bonita no terminal
+rich
+
+# Busca híbrida (opcional mas útil no RAG)
+rank-bm25
