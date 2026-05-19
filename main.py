@@ -1,34 +1,22 @@
-#imports------------
 import sys
 
-import llm.GammaAgente as agente
-
-from rag.rag import (
-    VetorStore,
-    gerar_contexto,
-    ler_pdfs,
-    preparar_documentos
-)
-from config.setting import MODEL_NAME, PDF_PATH
-
-#imports------------
-
+from src.rag.chunker import preparar_documentos
+from src.rag.context_builder import gerar_contexto
+from src.rag.loader import ler_pdfs
+from src.llm import GammaAgente as agente
+from src.config.setting import MODEL_NAME, PDF_PATH
+from src.rag.VetorStore import VetorStore
 
 def main():
-    # CARREGA PDFs
     print("Carregando PDFs...\n")
-
     documentos = ler_pdfs(PDF_PATH)
 
     if not documentos:
         print("Nenhum documento encontrado.")
         sys.exit(1)
 
-    # CHUNKS
     print("\nCriando chunks...\n")
-
     chunks, metadados = preparar_documentos(documentos)
-
     print(f"Total de chunks: {len(chunks)}\n")
 
     # INDEXAÇÃO
