@@ -26,18 +26,6 @@ import faiss
 
 
 # =============================================================================
-# CONFIG
-# =============================================================================
-
-PDF_PATH = r"D:\cod\jarvis-academico\data"
-
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 100
-
-MODEL_NAME = "all-MiniLM-L6-v2"
-
-
-# =============================================================================
 # LEITURA DOS PDFS
 # =============================================================================
 
@@ -192,47 +180,3 @@ Conteúdo:
 """
 
     return contexto
-
-
-# =============================================================================
-# MAIN
-# =============================================================================
-
-def main():
-
-    print("Carregando PDFs...\n")
-
-    documentos = ler_pdfs(PDF_PATH)
-
-    if not documentos:
-        return
-
-    print("\nCriando chunks...\n")
-
-    chunks, metadados = preparar_documentos(documentos)
-
-    print(f"Total de chunks: {len(chunks)}\n")
-
-    vetor_store = VetorStore(MODEL_NAME)
-
-    vetor_store.adicionar_documentos(
-        chunks,
-        metadados
-    )
-
-    while True:
-        pergunta = input("\nPergunta: ")
-
-        if pergunta.lower() == "sair":
-            break
-
-        resultados = vetor_store.buscar(pergunta)
-
-        contexto = gerar_contexto(resultados)
-
-        print("\n================ CONTEXTO PARA LLM ================\n")
-        print(contexto)
-
-
-if __name__ == "__main__":
-    main()

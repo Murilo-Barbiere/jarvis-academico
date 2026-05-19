@@ -4,13 +4,12 @@ import sys
 import llm.GammaAgente as agente
 
 from rag.rag import (
-    MODEL_NAME,
-    PDF_PATH,
     VetorStore,
     gerar_contexto,
     ler_pdfs,
     preparar_documentos
 )
+from config.setting import MODEL_NAME, PDF_PATH
 
 #imports------------
 
@@ -53,6 +52,8 @@ def main():
 
         # GERA CONTEXTO
         contexto = gerar_contexto(resultados)
+        print("\n================ Contexto ================\n")
+        print(contexto)
 
         # CHAMA LLM
         resposta = agente.perguntar_llm(
