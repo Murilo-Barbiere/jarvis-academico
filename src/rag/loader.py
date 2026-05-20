@@ -1,7 +1,10 @@
 from pathlib import Path
 from pypdf import PdfReader
+from src.utils.logger import configurar_logger
 
 def ler_pdfs(caminho):
+    logger = configurar_logger()
+
     textos = []
 
     pasta = Path(caminho)
@@ -13,9 +16,9 @@ def ler_pdfs(caminho):
         return textos
 
     for pdf in pdfs:
-        print(f"Lendo: {pdf.name}")
-
         try:
+            logger.info(f"- {pdf.name}")
+            
             reader = PdfReader(str(pdf))
 
             texto_pdf = ""
