@@ -386,3 +386,107 @@ Portanto, há um total de **7 telas** listadas.
 20/05/2026 11:04:38 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
 20/05/2026 11:04:38 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
 20/05/2026 11:04:41 | INFO | Resposta gerada | tamanho=203
+20/05/2026 12:16:41 | INFO | Aplicação iniciada
+20/05/2026 12:16:41 | INFO | - slide_da_aula.pdf
+20/05/2026 12:16:41 | INFO | - telas.pdf
+20/05/2026 12:16:41 | INFO | Total de chunks: 24
+
+20/05/2026 12:16:49 | INFO | Vector Store criada com sucesso
+20/05/2026 12:17:25 | INFO | Query: resulmo da materia
+20/05/2026 12:17:25 | INFO | Chunks recuperados: 3
+20/05/2026 12:17:25 | INFO | [Chunk 1] arquivo=telas.pdf
+20/05/2026 12:17:25 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+20/05/2026 12:17:25 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+20/05/2026 12:17:33 | INFO | Resposta gerada | tamanho=964
+20/05/2026 12:18:27 | INFO | Query: d:\cod\jarvis-academico\venv\Scripts\python.exe d:/cod/jarvis-academico/src/rag/VetorStore.py
+20/05/2026 12:18:27 | INFO | Chunks recuperados: 3
+20/05/2026 12:18:27 | INFO | [Chunk 1] arquivo=telas.pdf
+20/05/2026 12:18:27 | INFO | [Chunk 2] arquivo=telas.pdf
+20/05/2026 12:18:27 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+20/05/2026 12:18:30 | INFO | Resposta gerada | tamanho=325
+20/05/2026 12:18:33 | INFO | Sistema encerrar
+20/05/2026 12:25:25 | INFO | Aplicação iniciada
+20/05/2026 12:25:25 | INFO | - slide_da_aula.pdf
+20/05/2026 12:25:25 | INFO | - telas.pdf
+20/05/2026 12:29:19 | INFO | Aplicação iniciada
+20/05/2026 12:29:19 | INFO | - slide_da_aula.pdf
+20/05/2026 12:29:19 | INFO | - telas.pdf
+20/05/2026 12:29:26 | INFO | Vector Store criada com sucesso
+20/05/2026 12:29:35 | INFO | Query: qual tema da aula:
+20/05/2026 12:29:35 | INFO | Chunks recuperados: 3
+20/05/2026 12:29:35 | INFO | [Chunk 1] arquivo=slide_da_aula.pdf
+20/05/2026 12:29:35 | INFO | [Chunk 2] arquivo=telas.pdf
+20/05/2026 12:29:35 | INFO | [Chunk 3] arquivo=telas.pdf
+20/05/2026 12:29:39 | INFO | Resposta gerada | tamanho=243
+20/05/2026 12:30:12 | INFO | Query: quais docs vc tem acesso:
+20/05/2026 12:30:12 | INFO | Chunks recuperados: 3
+20/05/2026 12:30:12 | INFO | [Chunk 1] arquivo=slide_da_aula.pdf
+20/05/2026 12:30:12 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+20/05/2026 12:30:12 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+20/05/2026 12:30:15 | INFO | Resposta gerada | tamanho=230
+20/05/2026 12:36:55 | INFO | Query: d:\cod\jarvis-academico\venv\Scripts\python.exe d:/cod/jarvis-academico/src/rag/chunker.py
+20/05/2026 12:36:55 | INFO | Chunks recuperados: 3
+20/05/2026 12:36:55 | INFO | [Chunk 1] arquivo=telas.pdf
+20/05/2026 12:36:55 | INFO | [Chunk 2] arquivo=telas.pdf
+20/05/2026 12:36:55 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+20/05/2026 12:36:58 | INFO | Resposta gerada | tamanho=334
+20/05/2026 12:37:03 | INFO | Sistema encerrar
+20/05/2026 12:38:09 | INFO | Aplicação iniciada
+20/05/2026 12:38:09 | INFO | - slide_da_aula.pdf
+20/05/2026 12:38:09 | INFO | - telas.pdf
+21/05/2026 08:56:46 | INFO | Aplicação iniciada
+21/05/2026 08:56:46 | INFO | - slide_da_aula.pdf
+21/05/2026 08:56:47 | INFO | - telas.pdf
+21/05/2026 08:56:47 | INFO | Preparando documentos: 2
+21/05/2026 08:56:47 | INFO | Documento: slide_da_aula.pdf | chunks=17
+21/05/2026 08:56:47 | INFO | Documento: telas.pdf | chunks=7
+21/05/2026 08:56:47 | INFO | Total final de chunks: 24
+21/05/2026 08:56:59 | INFO | Vector Store criada com sucesso
+21/05/2026 08:57:05 | INFO | Query: oi
+21/05/2026 08:57:05 | INFO | Chunks recuperados: 3
+21/05/2026 08:57:05 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 08:57:05 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 08:57:05 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 08:57:08 | INFO | Resposta gerada | tamanho=25
+21/05/2026 08:57:38 | INFO | Query: qual tema da aula?
+21/05/2026 08:57:38 | INFO | Chunks recuperados: 3
+21/05/2026 08:57:38 | INFO | [Chunk 1] arquivo=slide_da_aula.pdf
+21/05/2026 08:57:38 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 08:57:38 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 08:57:40 | INFO | Resposta gerada | tamanho=227
+21/05/2026 09:39:52 | INFO | Query: d:\cod\jarvis-academico\venv\Scripts\python.exe d:/cod/jarvis-academico/main.py
+21/05/2026 09:39:52 | INFO | Chunks recuperados: 3
+21/05/2026 09:39:52 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 09:39:52 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 09:39:52 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 09:39:54 | INFO | Resposta gerada | tamanho=209
+21/05/2026 09:40:22 | INFO | Aplicação iniciada
+21/05/2026 09:40:23 | INFO | Preparando documentos: 2
+21/05/2026 09:40:23 | INFO | Documento: slide_da_aula.pdf | chunks=19
+21/05/2026 09:40:23 | INFO | Documento: telas.pdf | chunks=7
+21/05/2026 09:40:23 | INFO | Total final de chunks: 26
+21/05/2026 09:40:30 | INFO | Vector Store criada com sucesso
+21/05/2026 09:41:04 | INFO | Query: me de um resulmo da aula
+21/05/2026 09:41:04 | INFO | Chunks recuperados: 3
+21/05/2026 09:41:04 | INFO | [Chunk 1] arquivo=slide_da_aula.pdf
+21/05/2026 09:41:04 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 09:41:04 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 09:41:08 | INFO | Resposta gerada | tamanho=385
+21/05/2026 09:47:27 | INFO | Aplicação iniciada
+21/05/2026 09:47:27 | INFO | Preparando documentos: 2
+21/05/2026 09:47:27 | INFO | Documento: slide_da_aula.pdf | chunks=19
+21/05/2026 09:47:27 | INFO | Documento: telas.pdf | chunks=7
+21/05/2026 09:47:27 | INFO | Total final de chunks: 26
+21/05/2026 09:47:35 | INFO | Vector Store criada com sucesso
+21/05/2026 09:47:50 | INFO | Query: oque as telas fazem?
+21/05/2026 09:47:50 | INFO | Chunks recuperados: 3
+21/05/2026 09:47:50 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 09:47:50 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 09:47:50 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 09:47:54 | INFO | Resposta gerada | tamanho=237
+21/05/2026 09:49:06 | INFO | Query: quais sao todas as telas do site?
+21/05/2026 09:49:06 | INFO | Chunks recuperados: 3
+21/05/2026 09:49:06 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 09:49:06 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 09:49:06 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 09:49:07 | INFO | Resposta gerada | tamanho=205
