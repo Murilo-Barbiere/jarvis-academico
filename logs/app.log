@@ -490,3 +490,131 @@ Portanto, há um total de **7 telas** listadas.
 21/05/2026 09:49:06 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
 21/05/2026 09:49:06 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
 21/05/2026 09:49:07 | INFO | Resposta gerada | tamanho=205
+21/05/2026 10:07:20 | INFO | Aplicação iniciada
+21/05/2026 10:07:20 | INFO | Preparando documentos: 2
+21/05/2026 10:07:20 | INFO | Documento: slide_da_aula.pdf | chunks=19
+21/05/2026 10:07:21 | INFO | Documento: telas.pdf | chunks=7
+21/05/2026 10:07:21 | INFO | Total final de chunks: 26
+21/05/2026 10:07:28 | INFO | Vector Store criada com sucesso
+21/05/2026 10:07:33 | INFO | Query: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+21/05/2026 10:07:33 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:33 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:33 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 10:07:33 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:07:36 | INFO | Resposta gerada | tamanho=310
+21/05/2026 10:07:36 | INFO | Query: Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████| 103/103 [00:00<00:00, 3200.64it/s]
+21/05/2026 10:07:36 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:36 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:36 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:36 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:07:40 | INFO | Resposta gerada | tamanho=441
+21/05/2026 10:07:40 | INFO | Query: Gerando embeddings...
+21/05/2026 10:07:40 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:40 | INFO | [Chunk 1] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:40 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:40 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:43 | INFO | Resposta gerada | tamanho=270
+21/05/2026 10:07:43 | INFO | Query: 21 chunks indexados.
+21/05/2026 10:07:43 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:43 | INFO | [Chunk 1] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:43 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:43 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:44 | INFO | Resposta gerada | tamanho=171
+21/05/2026 10:07:44 | INFO | Query: 
+21/05/2026 10:07:44 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:44 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:44 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:44 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:07:45 | INFO | Resposta gerada | tamanho=92
+21/05/2026 10:07:45 | INFO | Query: Pergunta: quais sao todas as telas do site?
+21/05/2026 10:07:45 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:45 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:45 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:45 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:47 | INFO | Resposta gerada | tamanho=283
+21/05/2026 10:07:47 | INFO | Query: 
+21/05/2026 10:07:47 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:47 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:47 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:47 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:07:48 | INFO | Resposta gerada | tamanho=90
+21/05/2026 10:07:48 | INFO | Query: 
+21/05/2026 10:07:48 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:48 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:48 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:48 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:07:49 | INFO | Resposta gerada | tamanho=89
+21/05/2026 10:07:49 | INFO | Query: --------------------Resposta--------------------
+21/05/2026 10:07:49 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:49 | INFO | [Chunk 1] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:49 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 10:07:49 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:51 | INFO | Resposta gerada | tamanho=174
+21/05/2026 10:07:51 | INFO | Query: As telas do site são:
+21/05/2026 10:07:51 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:51 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:51 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:51 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:52 | INFO | Resposta gerada | tamanho=176
+21/05/2026 10:07:52 | INFO | Query: 
+21/05/2026 10:07:52 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:52 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:52 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:52 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:07:53 | INFO | Resposta gerada | tamanho=89
+21/05/2026 10:07:53 | INFO | Query: *   **Login** ( /login )
+21/05/2026 10:07:53 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:53 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:53 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 10:07:53 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:07:56 | INFO | Resposta gerada | tamanho=303
+21/05/2026 10:07:56 | INFO | Query: *   **Cadastro** ( /register )
+21/05/2026 10:07:56 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:56 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:56 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 10:07:56 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 10:07:58 | INFO | Resposta gerada | tamanho=231
+21/05/2026 10:07:58 | INFO | Query: *   **Detalhe do sorteio** ( /sorteios/{id} )
+21/05/2026 10:07:58 | INFO | Chunks recuperados: 3
+21/05/2026 10:07:58 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:07:58 | INFO | [Chunk 2] arquivo=telas.pdf
+21/05/2026 10:07:58 | INFO | [Chunk 3] arquivo=telas.pdf
+21/05/2026 10:08:26 | INFO | Aplicação iniciada
+21/05/2026 10:08:26 | INFO | Preparando documentos: 2
+21/05/2026 10:08:26 | INFO | Documento: slide_da_aula.pdf | chunks=19
+21/05/2026 10:08:26 | INFO | Documento: telas.pdf | chunks=7
+21/05/2026 10:08:26 | INFO | Total final de chunks: 26
+21/05/2026 10:08:34 | INFO | Vector Store criada com sucesso
+21/05/2026 10:08:38 | INFO | Query: quais sao todas as telas do site?
+21/05/2026 10:08:38 | INFO | Chunks recuperados: 3
+21/05/2026 10:08:38 | INFO | [Chunk 1] arquivo=telas.pdf
+21/05/2026 10:08:38 | INFO | [Chunk 2] arquivo=slide_da_aula.pdf
+21/05/2026 10:08:38 | INFO | [Chunk 3] arquivo=slide_da_aula.pdf
+21/05/2026 10:08:41 | INFO | Resposta gerada | tamanho=215
+21/05/2026 10:09:29 | INFO | Sistema encerrar
+21/05/2026 12:44:08 | INFO | Aplicação iniciada
+21/05/2026 12:44:08 | INFO | Preparando documentos: 10
+21/05/2026 12:44:08 | INFO | Documento: 01_introducao_circuitos.pdf | chunks=6
+21/05/2026 12:44:08 | INFO | Documento: 02_circuitos_rc_rl_rlc.pdf | chunks=5
+21/05/2026 12:44:08 | INFO | Documento: 03_amplificadores_operacionais.pdf | chunks=5
+21/05/2026 12:44:08 | INFO | Documento: 04_introducao_rna.pdf | chunks=5
+21/05/2026 12:44:08 | INFO | Documento: 05_backpropagation_treinamento.pdf | chunks=5
+21/05/2026 12:44:08 | INFO | Documento: 06_redes_convolucionais_cnn.pdf | chunks=5
+21/05/2026 12:44:08 | INFO | Documento: 07_rnn_lstm_gru.pdf | chunks=5
+21/05/2026 12:44:08 | INFO | Documento: 08_regularizacao_treinamento.pdf | chunks=6
+21/05/2026 12:44:08 | INFO | Documento: 09_transistores_circuitos_digitais.pdf | chunks=4
+21/05/2026 12:44:08 | INFO | Documento: 10_transformers_atencao.pdf | chunks=6
+21/05/2026 12:44:08 | INFO | Total final de chunks: 52
+21/05/2026 12:44:19 | INFO | Vector Store criada com sucesso
+21/05/2026 12:44:54 | INFO | Query: Qual a diferença entre LSTM e GRU?
+21/05/2026 12:44:54 | INFO | Chunks recuperados: 3
+21/05/2026 12:44:54 | INFO | [Chunk 1] arquivo=07_rnn_lstm_gru.pdf
+21/05/2026 12:44:54 | INFO | [Chunk 2] arquivo=07_rnn_lstm_gru.pdf
+21/05/2026 12:44:54 | INFO | [Chunk 3] arquivo=10_transformers_atencao.pdf
+21/05/2026 12:44:57 | INFO | Resposta gerada | tamanho=235
+21/05/2026 12:45:12 | INFO | Query: Compare Batch GD, SGD e Mini-batch GD.
+21/05/2026 12:45:14 | INFO | Chunks recuperados: 3
+21/05/2026 12:45:14 | INFO | [Chunk 1] arquivo=05_backpropagation_treinamento.pdf
+21/05/2026 12:45:14 | INFO | [Chunk 2] arquivo=04_introducao_rna.pdf
+21/05/2026 12:45:14 | INFO | [Chunk 3] arquivo=06_redes_convolucionais_cnn.pdf
+21/05/2026 12:45:16 | INFO | Resposta gerada | tamanho=233

@@ -42,10 +42,12 @@ def main():
             logger.info(f"[Chunk {i}] arquivo={item['arquivo']}")
 
         contexto = gerar_contexto(resultados)
+        
+        #so pra textar
         print("\n\n--------------------contexto--------------------")
         print(contexto)
         print("--------------------contexto--------------------")
-        
+
         resposta = agente.perguntar_llm(query,contexto)
         logger.info(f"Resposta gerada | tamanho={len(resposta)}")
 
