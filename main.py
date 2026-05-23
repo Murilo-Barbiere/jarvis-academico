@@ -21,7 +21,6 @@ def main():
         sys.exit(1)
 
     chunks, metadados = preparar_documentos(documentos)
-    logger.info(f"Total de chunks: {len(chunks)}\n")
 
     vetor_store = VetorStore(MODEL_NAME)
     vetor_store.adicionar_documentos(chunks,metadados)
@@ -42,7 +41,12 @@ def main():
         for i, item in enumerate(resultados, start=1):
             logger.info(f"[Chunk {i}] arquivo={item['arquivo']}")
 
-        contexto = gerar_contexto(resultados) 
+        contexto = gerar_contexto(resultados)
+        
+        #so pra textar
+        print("\n\n--------------------contexto--------------------")
+        print(contexto)
+        print("--------------------contexto--------------------")
 
         resposta = agente.perguntar_llm(query,contexto)
         logger.info(f"Resposta gerada | tamanho={len(resposta)}")
