@@ -10,8 +10,10 @@ from src.database.db_utils import (
     get_upcoming_exams,
     add_agenda_item,
     get_db_connection,
+    add_disciplina,
+    remove_disciplina,
+    get_disciplinas,
 )
-
 # ── Agenda ────────────────────────────────────────────────────────────────────
 
 def consultar_agenda():
@@ -95,7 +97,21 @@ def concluir_tarefa(titulo):
     conn.close()
     return {"status": "sucesso", "mensagem": f"Tarefa '{titulo}' concluída."}
 
+def adicionar_materia(nome, professor="", sala=""):
+    return add_disciplina(
+        nome=nome,
+        professor=professor,
+        sala=sala
+    )
+
+def sair_da_materia(nome):
+    return remove_disciplina(nome)
+
+def listar_materias():
+    return get_disciplinas()
+
 # ── RAG ───────────────────────────────────────────────────────────────────────
 
 def buscar_material_rag(vetor_store, pergunta):
     return vetor_store.buscar(pergunta)
+    

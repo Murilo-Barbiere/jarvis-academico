@@ -154,9 +154,131 @@ def add_agenda_item(tipo, titulo, descricao, data, disciplina_nome=None, hora_in
 
     conn.close()
     return {"status": "erro", "mensagem": f"Tipo '{tipo}' inválido. Use: tarefa, prova ou horario."}
+def add_disciplina(nome, professor=None, sala=None):
+    """Adiciona uma nova disciplina."""
+    
+    if not nome or not nome.strip():
+        return {
+            "status": "erro",
+            "mensagem": "Nome da disciplina é obrigatório."
+        }
+
+    nome = nome.strip()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)",
+        (nome,)
+    )
+
+    if cursor.fetchone():
+        conn.close()
+        return {
+            "status": "erro",
+            "mensagem": f"Disciplina '{nome}' já existe."
+        }
+
+    cursor.execute(
+        '''
+        INSERT INTO disciplinas (nome, professor, sala)
+        VALUES (?, ?, ?)
+        ''',
+        (nome, professor or "", sala or "")
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "status": "sucesso",
+        "mensagem": f"Disciplina '{nome}' adicionada."
+    }
+
+
+def remove_disciplina(nome):
+    """Remove uma disciplina pelo nome."""
+
+    if not nome or not nome.strip():
+        return {
+            "status": "erro",
+            "mensagem": "Nome da disciplina é obrigatório."
+        }
+
+    nome = nome.strip()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)",
+        (nome,)
+    )
+
+    row = cursor.fetchone()
+
+    if not row:
+        cursor.execute("SELECT nome FROM disciplinas ORDER BY nome")
+        disponiveis = [r["nome"] for r in cursor.fetchall()]
+
+        conn.close()
+
+        return {
+            "status": "erro",
+            "mensagem": f"Disciplina '{nome}' não encontrada. Disponíveis: {disponiveis}"
+        }
+
+    disciplina_id = row["id"]
+
+    # remove dependências
+    cursor.execute(
+        "DELETE FROM horarios WHERE disciplina_id = ?",
+        (disciplina_id,)
+    )
+
+    cursor.execute(
+        "DELETE FROM provas WHERE disciplina_id = ?",
+        (disciplina_id,)
+    )
+
+    # remove disciplina
+    cursor.execute(
+        "DELETE FROM disciplinas WHERE id = ?",
+        (disciplina_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "status": "sucesso",
+        "mensagem": f"Disciplina '{nome}' removida."
+    }
+
 
 if __name__ == "__main__":
     print("Aulas de hoje:", get_classes_today())
     print("Semana:", get_classes_this_week())
     print("Próximas provas:", get_upcoming_exams())
     print("Tarefas pendentes:", get_pending_tasks())
+
+def get_disciplinas():
+    """Retorna todas as disciplinas cadastradas."""
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        '''
+        SELECT nome, professor, sala
+        FROM disciplinas
+        ORDER BY nome
+        '''
+    )
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return [dict(r) for r in rows]

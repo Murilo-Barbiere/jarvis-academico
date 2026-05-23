@@ -56,7 +56,23 @@ Quando precisar usar uma ferramenta, responda SOMENTE no formato JSON:
     "arguments": { "chave": "valor" }
 }
 
+8. adicionar_materia
+   - Adiciona uma nova disciplina.
+   - Argumentos:
+     - "nome" (obrigatório)
+     - "professor" (opcional)
+     - "sala" (opcional)
+
+9. sair_da_materia
+   - Remove uma disciplina existente.
+   - Argumentos:
+     - "nome" (obrigatório)
+
 Se NÃO precisar usar ferramenta, responda normalmente em texto.
+
+10. listar_materias
+   - Sem argumentos.
+   - Retorna todas as disciplinas cadastradas.
 
 REGRAS IMPORTANTES:
 - Para adicionar_tarefa o campo é "titulo", NUNCA "nome".

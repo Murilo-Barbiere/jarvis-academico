@@ -1,3 +1,4 @@
+import json
 import logging
 from pathlib import Path
 
@@ -32,6 +33,19 @@ if not logger.handlers:
 
     logger.propagate = False
 
+def registrar_tool(nome_ferramenta, entrada, saida):
+
+    logger.info(
+        json.dumps(
+            {
+                "tipo": "tool_call",
+                "ferramenta": nome_ferramenta,
+                "entrada": entrada,
+                "saida": saida
+            },
+            ensure_ascii=False
+        )
+    )
 
 def configurar_logger():
     return logger

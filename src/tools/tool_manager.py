@@ -6,8 +6,11 @@ from src.tools.tools import (
     adicionar_tarefa,
     concluir_tarefa,
     buscar_material_rag,
+    adicionar_materia,
+    sair_da_materia,
+    listar_materias,
 )
-from src.tools.tool_logger import registrar_log
+from src.utils.logger import registrar_tool
 
 
 def executar_tool(tool_name, argumentos, vetor_store=None):
@@ -49,8 +52,27 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
         pergunta = argumentos.get("pergunta") or argumentos.get("query") or "consulta vazia"
         resultado = buscar_material_rag(vetor_store, pergunta)
 
+    elif tool_name == "adicionar_materia":
+        resultado = adicionar_materia(
+            nome       = argumentos.get("nome"),
+            professor  = argumentos.get("professor", ""),
+            sala       = argumentos.get("sala", ""),
+        )
+
+    elif tool_name == "sair_da_materia":
+        resultado = sair_da_materia(
+            nome = argumentos.get("nome")
+        )
+
+    elif tool_name == "listar_materias":
+        resultado = listar_materias()
+
     else:
         resultado = {"erro": f"Ferramenta '{tool_name}' não encontrada."}
 
-    registrar_log(nome_ferramenta=tool_name, entrada=argumentos, saida=resultado)
+    registrar_tool(
+        nome_ferramenta=tool_name,
+        entrada=argumentos,
+        saida=resultado
+    )
     return resultado
