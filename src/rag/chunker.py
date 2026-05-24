@@ -5,13 +5,48 @@ from src.utils.logger import configurar_logger
 
 logger = configurar_logger()
 
-def criar_chunks(texto):
-    chunks = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
-        separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""]
+
+def limpar_texto(texto: str) -> str:
+    texto = re.sub(r"-\n(\w)", r"\1", texto)
+    texto = re.sub(r"(?<!\n)\n(?!\n)", " ", texto)
+    texto = re.sub(r"\n{2,}", "\n\n", texto)
+    texto = re.sub(r"\s+", " ", texto)
+
+    substituicoes = {
+        "¢": "é",
+        "ﬁ": "fi",
+        "ﬂ": "fl",
+        "’": "'",
+        "“": '"',
+        "”": '"',
+    }
+
+    for errado, correto in substituicoes.items():
+        texto = texto.replace(errado, correto)
+
+    return texto.strip()
+
+
+def criar_chunks(texto, chunk_size=1000, overlap=200):
+
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=overlap,
+        separators=[
+            "\n\n",
+            "\n",
+            ". ",
+            "! ",
+            "? ",
+            "; ",
+            ", ",
+            " ",
+            ""
+        ]
     )
-    return chunks.split_text(texto)
+
+    return splitter.split_text(texto)
+
 
 def preparar_documentos(documentos):
     todos_chunks = []
@@ -20,16 +55,20 @@ def preparar_documentos(documentos):
     logger.info(f"Preparando documentos: {len(documentos)}")
 
     for doc in documentos:
-        texto_limpo = limpar_texto(doc["texto"]
-)
+
+        texto_limpo = limpar_texto(doc["texto"])
 
         chunks = criar_chunks(texto_limpo)
 
         total_chunks = len(chunks)
 
-        logger.info(f"Documento: {doc['arquivo']} | chunks={total_chunks}")
+        logger.info(
+            f"Documento: {doc['arquivo']} | "
+            f"chunks={total_chunks}"
+        )
 
         for i, chunk in enumerate(chunks):
+
             todos_chunks.append(chunk)
 
             metadados.append({
@@ -39,10 +78,5 @@ def preparar_documentos(documentos):
             })
 
     logger.info(f"Total final de chunks: {len(todos_chunks)}")
+
     return todos_chunks, metadados
-
-def limpar_texto(texto: str) -> str:
-    texto = re.sub(r"-\n(\w)", r"\1", texto)
-    texto = re.sub(r"\n{3,}", "\n\n", texto) 
-
-    return texto.strip()
