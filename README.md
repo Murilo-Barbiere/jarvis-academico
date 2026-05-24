@@ -213,18 +213,14 @@ O dataset é composto por 9 ficheiros que contêm trechos e capítulos seleciona
 * **Estruturas de Dados e Seus Algoritmos (Jayme Luiz Szwarcfiter e Lilian Markenzon):** Focado em algoritmos de ordenação (ex: Heapsort).
 
 ## 2. Tipo
-Os dados estão estruturados no formato **PDF (Portable Document Format)**, mas tecnicamente dividem-se em duas categorias muito distintas que afetam o processamento:
-* **PDF de Texto Nativo (Pesquisável):** Apenas 1 ficheiro (`cormen-vermelho-preto.pdf`). Possui codificação de caracteres direta, permitindo a extração imediata, rápida e com alta precisão via bibliotecas padrão (como o PyMuPDF).
-* **PDF Digitalizado (Imagem rasterizada):** Os outros 8 ficheiros. São essencialmente "fotografias" das páginas encapsuladas num PDF. Não possuem uma camada de texto acessível através do código-fonte do documento.
+Os dados estão estruturados no formato **PDF**.
 
 ## 3. Limitações
 A natureza atual deste dataset impõe os seguintes desafios técnicos para a pipeline do RAG:
-* **Necessidade de OCR:** 89% do dataset (8 de 9 ficheiros) exige processamento prévio utilizando Reconhecimento Ótico de Caracteres (OCR) para que o texto seja extraído e indexado. Isto adiciona ruído (erros de leitura de letras semelhantes) e tempo ao pré-processamento.
-* **Perda de Informação Semântica Visual:** Livros como o do Cormen e do Kurose dependem fortemente de diagramas, grafos, tabelas e pseudocódigos. Extratores de texto (mesmo OCRs) costumam achatar esta formatação, o que pode fazer com que a descrição geométrica de uma árvore binária ou de um diagrama temporal do TCP perca o sentido para o LLM.
+* **Perda de Informação Semântica Visual:** Livros como o do Cormen e do Kurose dependem fortemente de diagramas, grafos, tabelas e pseudocódigos. Extratores de texto costumam achatar esta formatação, o que pode fazer com que a descrição geométrica de uma árvore binária ou de um diagrama temporal do TCP perca o sentido para o LLM.
 * **Fórmulas Matemáticas:** Livros de algoritmos contêm alta densidade de notação matemática (ex: notação Big-O, $\Theta(n~log~n)$, equações de recorrência). Extratores comuns podem quebrar estes símbolos, gerando embeddings de baixa qualidade para perguntas que envolvam complexidade computacional.
 
 ## 4. Estratégia de Chunking (Fragmentação)
 Com base na execução de teste prévia (onde 1 ficheiro gerou **142 chunks**), a estratégia de chunking aplicada/recomendada para este tipo de material é a **Fragmentação por Caracteres com Sobreposição (Recursive Character Text Splitting)**:
-* **Densidade Observada:** O ficheiro `cormen-vermelho-preto.pdf` possui cerca de 25 a 30 páginas e gerou 142 chunks. Isto sugere chunks relativamente pequenos (provavelmente entre 500 e 1000 caracteres ou tokens).
 * **Recomendação de Overlap (Sobreposição):** Como o texto é altamente académico e os conceitos estendem-se por vários parágrafos, é fundamental utilizar um overlap de pelo menos 15% a 25% (ex: 200 caracteres de sobreposição para chunks de 1000). Isto evita que uma explicação sobre o funcionamento de uma "Árvore de Busca Binária" seja cortada a meio, prejudicando a recuperação do contexto pelo modelo de linguagem.
 * **Tratamento de Metadados:** É recomendado que o chunking anexe o metadado do número da página e o nome do ficheiro (`source`) a cada fragmento. Isto permite que o LLM cite adequadamente de onde extraiu a informação (ex: *"Segundo o Kurose (página 96), o DNS funciona..."*).
