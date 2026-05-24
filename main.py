@@ -3,7 +3,6 @@ import sys
 from src.rag.chunker import preparar_documentos
 from src.rag.context_builder import gerar_contexto
 from src.rag.loader import ler_pdfs
-
 from src.llm import GammaAgente as agente
 from src.config.setting import MODEL_NAME, PDF_PATH
 from src.rag.VetorStore import VetorStore
