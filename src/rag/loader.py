@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from pypdf import PdfReader
+import fitz
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,6 @@ def ler_pdfs(caminho: str, incluir_subpastas: bool = False) -> list[dict]:
         logger.error(f"Pasta não encontrada: {caminho}")
         return []
 
-    # rglob busca em subpastas; glob só na raiz
     padrao = "**/*.pdf" if incluir_subpastas else "*.pdf"
     pdfs = sorted(pasta.glob(padrao))
 
@@ -35,21 +34,22 @@ def ler_pdfs(caminho: str, incluir_subpastas: bool = False) -> list[dict]:
 def _ler_um_pdf(caminho_pdf: Path) -> dict | None:
     try:
         logger.info(f"Lendo: {caminho_pdf.name}")
-        reader = PdfReader(str(caminho_pdf))
-
+        
         partes = []
         paginas_com_texto = 0
+        total_paginas = 0
 
-        for i, pagina in enumerate(reader.pages, start=1):
-            texto = pagina.extract_text()
+        with fitz.open(caminho_pdf) as doc:
+            total_paginas = len(doc)
+            
+            for i, pagina in enumerate(doc, start=1):
+                texto = pagina.get_text()
 
-            if texto and texto.strip():
-                # Marca o número de página para rastreabilidade
-                partes.append(f"[Página {i}]\n{texto.strip()}")
-                paginas_com_texto += 1
+                if texto and texto.strip():
+                    partes.append(f"[Página {i}]\n{texto.strip()}")
+                    paginas_com_texto += 1
 
-        # Detecta PDF escaneado: tem páginas mas nenhuma retornou texto
-        if len(reader.pages) > 0 and paginas_com_texto == 0:
+        if total_paginas > 0 and paginas_com_texto == 0:
             logger.warning(
                 f"{caminho_pdf.name} parece ser um PDF escaneado "
                 f"(imagem sem texto extraível). OCR não implementado."
@@ -60,7 +60,7 @@ def _ler_um_pdf(caminho_pdf: Path) -> dict | None:
 
         logger.info(
             f"  ✓ {caminho_pdf.name}: "
-            f"{paginas_com_texto}/{len(reader.pages)} páginas, "
+            f"{paginas_com_texto}/{total_paginas} páginas, "
             f"{len(texto_completo)} caracteres"
         )
 
