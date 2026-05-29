@@ -52,7 +52,7 @@ def decidir_tool(mensagem):
                 "role": "system",
                 "content": SYSTEM_PROMPT
             },
-            {
+            {   
                 "role": "user",
                 "content": mensagem
             }

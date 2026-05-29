@@ -1,28 +1,18 @@
-﻿# VetorStore.py
-
-import faiss
-import numpy as np
+﻿import faiss
 from sentence_transformers import SentenceTransformer
 
 
 class VetorStore:
 
     def __init__(self, model_name):
-
         self.model = SentenceTransformer(model_name)
-
         self.index = None
-
         self.chunks = []
-
         self.metadados = []
 
     def adicionar_documentos(self, chunks, metadados):
-
         self.chunks = chunks
         self.metadados = metadados
-
-        print("Gerando embeddings...")
 
         embeddings = self.model.encode(
             chunks,
@@ -30,20 +20,16 @@ class VetorStore:
             show_progress_bar=True
         ).astype("float32")
 
-        # NORMALIZAÇÃO → cosine similarity
         faiss.normalize_L2(embeddings)
 
         dimensao = embeddings.shape[1]
 
-        # Inner Product = cosine similarity após normalização
         self.index = faiss.IndexFlatIP(dimensao)
-
         self.index.add(embeddings)
 
         print(f"{len(chunks)} chunks indexados.")
 
     def buscar(self, pergunta, top_k=8):
-
         pergunta_embedding = self.model.encode(
             [pergunta],
             convert_to_numpy=True
