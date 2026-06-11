@@ -1,4 +1,4 @@
-import sys
+import json
 from src.rag.chunker import preparar_documentos
 from src.rag.loader import ler_pdfs
 from src.llm.GammaAgente import get_agent
@@ -63,7 +63,7 @@ def main():
             try:
                 # Caso especial para RAG que precisa do vetor_store
                 resultado = executar_tool(nome_tool, argumentos, vetor_store)
-                contexto = str(resultado)
+                contexto = json.dumps(resultado, ensure_ascii=False, default=str)
                 logger.info("Ferramenta executada com sucesso")
             except Exception as e:
                 logger.error(f"Erro na execução da tool: {e}")
@@ -77,7 +77,7 @@ def main():
         # Usamos a query original para a memória e resposta final para manter naturalidade
         resposta = jarvis.gerar_resposta_final(query, contexto)
         
-        print(f"\nJARVIS: {resposta}")
+        print(f"\nJARVIS2: {resposta}")
 
 if __name__ == "__main__":
     main()
