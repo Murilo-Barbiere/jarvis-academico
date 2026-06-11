@@ -1,131 +1,75 @@
 import sys
-
 from src.rag.chunker import preparar_documentos
-from src.rag.context_builder import gerar_contexto
 from src.rag.loader import ler_pdfs
-from src.llm import GammaAgente as agente
+from src.llm.GammaAgente import get_agent
 from src.config.setting import MODEL_NAME, PDF_PATH
 from src.rag.VetorStore import VetorStore
 from src.utils.logger import configurar_logger
 from src.tools.tool_manager import executar_tool
 
-
 def main():
-
     logger = configurar_logger()
+    logger.info("Aplicação JARVIS Acadêmico iniciada")
 
-    logger.info("Aplicação iniciada")
+    # Inicialização do Agente (Stateful)
+    jarvis = get_agent()
 
+    # Preparação do RAG
     documentos = ler_pdfs(PDF_PATH)
-
     if not documentos:
+        print("Aviso: Nenhum documento PDF encontrado para o RAG.")
+        vetor_store = None
+    else:
+        chunks, metadados = preparar_documentos(documentos)
+        vetor_store = VetorStore(MODEL_NAME)
+        vetor_store.adicionar_documentos(chunks, metadados)
+        logger.info("Vector Store carregada com sucesso")
 
-        print("Nenhum documento encontrado.")
-
-        logger.error("Nenhum documento encontrado no dataset")
-
-        sys.exit(1)
-
-    chunks, metadados = preparar_documentos(documentos)
-
-    vetor_store = VetorStore(MODEL_NAME)
-
-    vetor_store.adicionar_documentos(chunks, metadados)
-
-    logger.info("Vector Store criada com sucesso")
+    print("\n=== JARVIS Acadêmico Pronto ===")
+    print("Digite 'sair' para encerrar ou 'limpar' para resetar a memória.")
 
     while True:
-
-        query = input("\nPergunta: ")
+        query = input("\nVocê: ")
 
         if query.lower() == "sair":
-
-            logger.info("Sistema encerrado")
-
+            logger.info("Sistema encerrado pelo usuário")
             break
+        
+        if query.lower() == "limpar":
+            jarvis.memory.clear()
+            print("Histórico de conversa limpo!")
+            continue
 
-        logger.info(f"Query recebida: {query}")
+        logger.info(f"Processando query: {query}")
 
-        # -----------------------------
-        # LLM decide se precisa tool
-        # -----------------------------
-        tool_call = agente.decidir_tool(query)
+        # 1. Agente decide o que fazer (Tool Calling com Histórico)
+        plano = jarvis.decidir_tool(query)
+        
+        contexto = ""
+        nome_tool = plano.get("tool") if plano else "nenhuma"
 
-        # -----------------------------
-        # CASO TENHA TOOL
-        # -----------------------------
-        if tool_call and "tool" in tool_call:
-
-            nome_tool = tool_call["tool"]
-
-            argumentos = tool_call.get("arguments", {})
-
-            logger.info(f"Tool escolhida: {nome_tool}")
-
-            logger.info(f"Argumentos: {argumentos}")
-
+        # 2. Execução da Tool ou Fluxo Direto
+        if nome_tool and nome_tool != "nenhuma":
+            argumentos = plano.get("arguments", {})
+            logger.info(f"Executando ferramenta: {nome_tool}")
+            
             try:
-
-                resultado_tool = executar_tool(
-                    nome_tool,
-                    argumentos,
-                    vetor_store
-                )
-
-                logger.info("Tool executada com sucesso")
-
-                if isinstance(resultado_tool, list) and len(resultado_tool) == 0:
-                    contexto = "A ferramenta nao retornou resultados. Informe isso ao usuario claramente."
-                else:
-                    contexto = str(resultado_tool)
-
+                # Caso especial para RAG que precisa do vetor_store
+                resultado = executar_tool(nome_tool, argumentos, vetor_store)
+                contexto = str(resultado)
+                logger.info("Ferramenta executada com sucesso")
             except Exception as e:
-
-                logger.error(f"Erro ao executar tool: {str(e)}")
-
-                contexto = f"Erro ao executar ferramenta: {str(e)}"
-
-        # -----------------------------
-        # CASO NÃO TENHA TOOL
-        # -----------------------------
+                logger.error(f"Erro na execução da tool: {e}")
+                contexto = f"Erro ao processar sua solicitação na ferramenta {nome_tool}: {e}"
         else:
+            # Se 'nenhuma' tool foi escolhida, o contexto é vazio (ou o histórico basta)
+            logger.info("Nenhuma ferramenta necessária. Usando apenas histórico/conhecimento.")
+            contexto = "Nenhuma informação extra necessária além do histórico da conversa."
 
-            logger.info("Nenhuma tool utilizada")
-
-            resultados = vetor_store.buscar(query)
-
-            logger.info(f"Chunks recuperados: {len(resultados)}")
-
-            for i, item in enumerate(resultados, start=1):
-
-                logger.info(
-                    f"[Chunk {i}] arquivo={item['arquivo']}"
-                )
-
-            contexto = gerar_contexto(resultados)
-
-        # -----------------------------
-        # DEBUG CONTEXTO
-        # -----------------------------
-        print("\n\n--------------------CONTEXTO--------------------")
-        print(contexto)
-        print("--------------------CONTEXTO--------------------")
-
-        # -----------------------------
-        # RESPOSTA FINAL DA LLM
-        # -----------------------------
-        resposta = agente.perguntar_llm(
-            mensagem=query,
-            contexto=contexto
-        )
-
-        logger.info(
-            f"Resposta gerada | tamanho={len(resposta)}"
-        )
-
-        print("\n\n--------------------RESPOSTA--------------------")
-        print(resposta)
-
+        # 3. Geração da Resposta Final (com síntese e atualização da memória)
+        resposta = jarvis.gerar_resposta_final(query, contexto)
+        
+        print(f"\nJARVIS: {resposta}")
 
 if __name__ == "__main__":
     main()

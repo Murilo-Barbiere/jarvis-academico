@@ -230,6 +230,12 @@ Quando precisar usar uma ferramenta:
 - não use markdown;
 - não adicione texto antes ou depois do JSON.
 
+Se não precisar de nenhuma ferramenta para responder (ex: conversa casual, saudações ou perguntas sobre o histórico da conversa), você deve retornar obrigatoriamente:
+{
+  "tool": "nenhuma",
+  "arguments": {}
+}
+
 Formato obrigatório:
 {
   "tool": "nome_da_tool",
