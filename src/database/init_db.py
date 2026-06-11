@@ -5,6 +5,10 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from src.config.setting import DB_PATH
 
+from src.utils.logger import configurar_logger
+
+logger = configurar_logger()
+
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     
@@ -55,7 +59,7 @@ def init_db():
 
     conn.commit()
     conn.close()
-    print(f"Banco de dados inicializado em {DB_PATH}")
+    logger.info(f"Banco de dados inicializado em {DB_PATH}")
 
 if __name__ == "__main__":
     init_db()

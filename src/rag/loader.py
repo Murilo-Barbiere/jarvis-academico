@@ -1,8 +1,7 @@
-import logging
-from pathlib import Path
+from src.utils.logger import configurar_logger
 import fitz
 
-logger = logging.getLogger(__name__)
+logger = configurar_logger()
 
 
 def ler_pdfs(caminho: str, incluir_subpastas: bool = False) -> list[dict]:

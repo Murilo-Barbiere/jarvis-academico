@@ -2,7 +2,8 @@ import sys
 from src.rag.chunker import preparar_documentos
 from src.rag.loader import ler_pdfs
 from src.llm.GammaAgente import get_agent
-from src.config.setting import MODEL_NAME, PDF_PATH
+from src.llm.query_rewriter import QueryRewriterService
+from src.config.setting import MODEL_NAME, PDF_PATH, JARVIS_QUERY_REWRITER_ENABLED
 from src.rag.VetorStore import VetorStore
 from src.utils.logger import configurar_logger
 from src.tools.tool_manager import executar_tool
@@ -13,6 +14,7 @@ def main():
 
     # Inicialização do Agente (Stateful)
     jarvis = get_agent()
+    rewriter = QueryRewriterService()
 
     # Preparação do RAG
     documentos = ler_pdfs(PDF_PATH)
@@ -42,8 +44,13 @@ def main():
 
         logger.info(f"Processando query: {query}")
 
+        # Camada de Query Rewriting
+        query_para_agente = query
+        if JARVIS_QUERY_REWRITER_ENABLED:
+            query_para_agente = rewriter.rewrite(query)
+
         # 1. Agente decide o que fazer (Tool Calling com Histórico)
-        plano = jarvis.decidir_tool(query)
+        plano = jarvis.decidir_tool(query_para_agente)
         
         contexto = ""
         nome_tool = plano.get("tool") if plano else "nenhuma"
@@ -67,6 +74,7 @@ def main():
             contexto = "Nenhuma informação extra necessária além do histórico da conversa."
 
         # 3. Geração da Resposta Final (com síntese e atualização da memória)
+        # Usamos a query original para a memória e resposta final para manter naturalidade
         resposta = jarvis.gerar_resposta_final(query, contexto)
         
         print(f"\nJARVIS: {resposta}")

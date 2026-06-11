@@ -21,15 +21,19 @@ if not logger.handlers:
         datefmt="%d/%m/%Y %H:%M:%S"
     )
 
+    # Handler para Arquivo
     file_handler = logging.FileHandler(
         LOG_FILE,
         mode="a",
         encoding="utf-8"
     )
-
     file_handler.setFormatter(formatter)
-
     logger.addHandler(file_handler)
+
+    # Handler para Console (Terminal)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
     logger.propagate = False
 
@@ -42,6 +46,20 @@ def registrar_tool(nome_ferramenta, entrada, saida):
                 "ferramenta": nome_ferramenta,
                 "entrada": entrada,
                 "saida": saida
+            },
+            ensure_ascii=False
+        )
+    )
+
+def registrar_query_rewriter(original, reformulada, tempo):
+    """Registra a reformulação da query em formato JSON no log."""
+    logger.info(
+        json.dumps(
+            {
+                "tipo": "query_rewriting",
+                "original": original,
+                "reformulada": reformulada,
+                "tempo_segundos": round(tempo, 4)
             },
             ensure_ascii=False
         )

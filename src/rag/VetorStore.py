@@ -2,6 +2,10 @@
 from sentence_transformers import SentenceTransformer
 
 
+from src.utils.logger import configurar_logger
+
+logger = configurar_logger()
+
 class VetorStore:
 
     def __init__(self, model_name):
@@ -27,7 +31,7 @@ class VetorStore:
         self.index = faiss.IndexFlatIP(dimensao)
         self.index.add(embeddings)
 
-        print(f"{len(chunks)} chunks indexados.")
+        logger.info(f"{len(chunks)} chunks indexados.")
 
     def buscar(self, pergunta, top_k=8):
         pergunta_embedding = self.model.encode(

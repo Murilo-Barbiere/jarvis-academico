@@ -1,7 +1,7 @@
-import logging
 from difflib import SequenceMatcher
+from src.utils.logger import configurar_logger
 
-logger = logging.getLogger()
+logger = configurar_logger()
 
 
 def parecido(a, b, limite=0.90):

@@ -6,8 +6,10 @@ from typing import Optional, Dict, Any
 
 from src.llm.SYSTEM_PROMPT import SYSTEM_PROMPT
 from src.llm.memory import ChatMemoryManager
+from src.utils.logger import configurar_logger
 
 load_dotenv()
+logger = configurar_logger()
 
 class JarvisAgent:
     """
@@ -56,7 +58,7 @@ class JarvisAgent:
             return json.loads(conteudo)
         except Exception as e:
             # Em caso de erro, podemos logar e retornar None para o fluxo seguir sem tool
-            print(f"Erro ao decidir tool: {str(e)}")
+            logger.error(f"Erro ao decidir tool: {str(e)}")
             return None
 
     def gerar_resposta_final(self, user_query: str, contexto: str) -> str:
