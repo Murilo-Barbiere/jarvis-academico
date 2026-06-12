@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from src.utils.logger import configurar_logger
 import fitz
 
