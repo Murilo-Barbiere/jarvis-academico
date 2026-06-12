@@ -77,7 +77,7 @@ def main():
         # Usamos a query original para a memória e resposta final para manter naturalidade
         resposta = jarvis.gerar_resposta_final(query, contexto)
         
-        print(f"\nJARVIS2: {resposta}")
+        print(f"\nJARVIS: {resposta}")
 
 if __name__ == "__main__":
     main()
