@@ -1,4 +1,6 @@
 ﻿import faiss
+import pickle
+from pathlib import Path
 from sentence_transformers import SentenceTransformer
 
 
@@ -13,6 +15,29 @@ class VetorStore:
         self.index = None
         self.chunks = []
         self.metadados = []
+
+    def salvar(self, pasta: str = "db"):
+        Path(pasta).mkdir(exist_ok=True)
+        faiss.write_index(self.index, f"{pasta}/faiss.index")
+        with open(f"{pasta}/chunks_meta.pkl", "wb") as f:
+            pickle.dump({"chunks": self.chunks, "metadados": self.metadados}, f)
+
+    def carregar(self, pasta: str = "db") -> bool:
+        index_path = Path(f"{pasta}/faiss.index")
+        meta_path = Path(f"{pasta}/chunks_meta.pkl")
+        if not index_path.exists() or not meta_path.exists():
+            return False
+        
+        try:
+            self.index = faiss.read_index(str(index_path))
+            with open(meta_path, "rb") as f:
+                data = pickle.load(f)
+            self.chunks = data["chunks"]
+            self.metadados = data["metadados"]
+            return True
+        except Exception as e:
+            logger.error(f"Erro ao carregar índice FAISS: {e}")
+            return False
 
     def adicionar_documentos(self, chunks, metadados):
         self.chunks = chunks

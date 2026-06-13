@@ -3,7 +3,7 @@ from src.rag.chunker import preparar_documentos
 from src.rag.loader import ler_pdfs
 from src.llm.GammaAgente import get_agent
 from src.llm.query_rewriter import QueryRewriterService
-from src.config.setting import MODEL_NAME, PDF_PATH, JARVIS_QUERY_REWRITER_ENABLED
+from src.config.setting import MODEL_NAME, PDF_PATH, JARVIS_QUERY_REWRITER_ENABLED, VECTOR_STORE_PATH
 from src.rag.VetorStore import VetorStore
 from src.utils.logger import configurar_logger
 from src.tools.tool_manager import executar_tool
@@ -17,15 +17,21 @@ def main():
     rewriter = QueryRewriterService()
 
     # Preparação do RAG
-    documentos = ler_pdfs(PDF_PATH)
-    if not documentos:
-        print("Aviso: Nenhum documento PDF encontrado para o RAG.")
-        vetor_store = None
+    vetor_store = VetorStore(MODEL_NAME)
+    
+    if not vetor_store.carregar(VECTOR_STORE_PATH):
+        logger.info("Índice não encontrado ou inválido. Reconstruindo...")
+        documentos = ler_pdfs(PDF_PATH)
+        if not documentos:
+            print("Aviso: Nenhum documento PDF encontrado para o RAG.")
+            vetor_store = None
+        else:
+            chunks, metadados = preparar_documentos(documentos)
+            vetor_store.adicionar_documentos(chunks, metadados)
+            vetor_store.salvar(VECTOR_STORE_PATH)
+            logger.info("Vector Store criada e salva com sucesso")
     else:
-        chunks, metadados = preparar_documentos(documentos)
-        vetor_store = VetorStore(MODEL_NAME)
-        vetor_store.adicionar_documentos(chunks, metadados)
-        logger.info("Vector Store carregada com sucesso")
+        logger.info(f"Índice carregado: {len(vetor_store.chunks)} chunks")
 
     print("\n=== JARVIS Acadêmico Pronto ===")
     print("Digite 'sair' para encerrar ou 'limpar' para resetar a memória.")
