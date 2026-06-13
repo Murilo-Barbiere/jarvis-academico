@@ -9,6 +9,7 @@ from src.tools.tools import (
     adicionar_materia,
     sair_da_materia,
     listar_materias,
+    obter_resumo_academico,
 )
 from src.utils.logger import registrar_tool
 
@@ -66,6 +67,12 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
 
     elif tool_name == "listar_materias":
         resultado = listar_materias()
+
+    elif tool_name == "obter_resumo_academico":
+        arquivos = []
+        if vetor_store and hasattr(vetor_store, 'metadados'):
+            arquivos = list(set([m['arquivo'] for m in vetor_store.metadados]))
+        resultado = obter_resumo_academico(materiais=arquivos)
 
     else:
         resultado = {"erro": f"Ferramenta '{tool_name}' não encontrada."}

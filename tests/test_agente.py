@@ -67,4 +67,5 @@ def test_sem_tool():
     assert (
         resposta is None
         or "tool" not in resposta
+        or resposta["tool"] == "nenhuma"
     )

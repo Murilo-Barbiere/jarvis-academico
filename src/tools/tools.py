@@ -114,4 +114,20 @@ def listar_materias():
 
 def buscar_material_rag(vetor_store, pergunta):
     return vetor_store.buscar(pergunta)
+
+# ── Resumo Acadêmico ──────────────────────────────────────────────────────────
+
+def obter_resumo_academico(materiais=None):
+    """Consolida tarefas pendentes, provas nos próximos 30 dias e aulas de hoje."""
+    tarefas = get_pending_tasks()
+    provas = get_upcoming_exams(days=30)
+    agenda = get_classes_today()
+
+    return {
+        "status": "sucesso",
+        "tarefas_pendentes": tarefas,
+        "provas_proximos_30_dias": provas,
+        "agenda_hoje": agenda,
+        "materiais_disponiveis": materiais or []
+    }
     
