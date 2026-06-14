@@ -87,10 +87,10 @@ O projeto utiliza **pytest** para testes automatizados. Para rodar todos os test
 pytest
 ```
 
-Para rodar um arquivo de teste específico:
+Para rodar um arquivo os testes:
 
 ```bash
-pytest tests/test_agente.py
+ python -m pytest
 ```
 
 ---
@@ -104,10 +104,10 @@ Pergunta: Quais aulas tenho hoje?
 Pergunta: Adiciona uma prova de Redes para amanhã
 Pergunta: Qual a diferença entre LSTM e GRU?
 Pergunta: Lista minhas tarefas pendentes
-Pergunta: sair
+Pergunta: /sair
 ```
 
-Digite `sair` para encerrar.
+Digite `/sair` para encerrar.
 
 ---
 
