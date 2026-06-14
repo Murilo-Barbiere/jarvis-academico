@@ -80,7 +80,17 @@ class JarvisAgent:
         """
         Decide qual ferramenta utilizar com base no histórico e na query atual.
         """
-        messages = self._get_messages_for_llm(user_query)
+        system_override = None
+        if self.modo_quiz:
+            system_override = (
+                "Você é o JARVIS Acadêmico em MODO QUIZ.\n"
+                "Sua única tarefa agora é decidir se precisa de mais informações do RAG "
+                "para avaliar a resposta do usuário ou se já pode responder diretamente.\n"
+                "Se o usuário estiver respondendo ao quiz, você geralmente não precisa de ferramenta, "
+                "a menos que ele faça uma pergunta técnica específica."
+            )
+
+        messages = self._get_messages_for_llm(user_query, system_override=system_override)
         
         try:
             resposta = self.client.chat.completions.create(
@@ -103,16 +113,21 @@ class JarvisAgent:
         """
         # Prompt específico para síntese da resposta com contexto
         if self.modo_quiz:
+            contexto_combinado = f"CONTEXTO BASE DO QUIZ:\n{self.contexto_quiz}\n\nINFORMAÇÕES ADICIONAIS:\n{contexto}"
+            
             system_sintese = (
-                "Você é o JARVIS Acadêmico atuando no modo Quiz Interativo (Active Recall).\n"
-                "O usuário está respondendo à pergunta que você fez anteriormente.\n\n"
-                "SUA MISSÃO:\n"
-                "1. Avalie a resposta do usuário comparando-a rigorosamente com o CONTEXTO DO QUIZ abaixo.\n"
-                "2. Diga de forma clara se a resposta está Correta, Parcialmente Correta ou Incorreta (Avaliação).\n"
-                "3. Identifique as dificuldades do usuário se ele errar ou esquecer conceitos centrais.\n"
-                "4. Se a resposta não for totalmente correta, faça uma RECOMENDAÇÃO DE REVISÃO explícita baseada no contexto.\n"
-                "5. Logo em seguida, apresente a PRÓXIMA pergunta para dar continuidade ao estudo.\n\n"
-                f"CONTEXTO DO QUIZ:\n{self.contexto_quiz}"
+                "Você é o JARVIS Acadêmico, um tutor de IA especialista em Active Recall.\n"
+                "O usuário está respondendo a uma pergunta do quiz.\n\n"
+                "Sua resposta deve seguir OBRIGATORIAMENTE esta estrutura de Markdown:\n\n"
+                "### Avaliação\n"
+                "[Diga de forma direta se a resposta está Correta, Parcialmente Correta ou Incorreta e faça uma breve análise justificando baseado no contexto]\n\n"
+                "### Pontos Fracos / Lacunas de Conhecimento\n"
+                "[Se o usuário errou ou esqueceu algum detalhe importante do contexto, liste exatamente quais conceitos ou termos técnicos ele deixou passar. Se ele acertou tudo, elogie e diga que não há lacunas]\n\n"
+                "### Recomendação de Revisão\n"
+                "[Indique explicitamente quais tópicos, conceitos ou documentos específicos (mencione o nome do arquivo, ex: 'releia o material kurose-http.pdf') do contexto abaixo ele deve reler para fixar o conteúdo]\n\n"
+                "### Próxima Pergunta\n"
+                "[Formule a próxima pergunta desafiadora baseada no contexto do quiz para continuar o teste]\n\n"
+                f"CONTEXTO DO QUIZ:\n{contexto_combinado}"
             )
         else:
             system_sintese = (
