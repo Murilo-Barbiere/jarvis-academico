@@ -157,4 +157,33 @@ def obter_resumo_academico(materiais=None):
         "agenda_hoje": agenda,
         "materiais_disponiveis": materiais or []
     }
+
+# ── Novas Ferramentas de Gestão ──────────────────────────────────────────────
+
+def remover_tarefa(titulo):
+    return remove_task(titulo)
+
+def alterar_tarefa(titulo, descricao=None, data_entrega=None):
+    return update_task(titulo, descricao, data_entrega)
+
+def listar_tarefas_concluidas():
+    return get_completed_tasks()
+
+def remover_prova(disciplina, data):
+    return remove_exam(disciplina, data)
+
+def remover_trabalho(disciplina, data_entrega):
+    return remove_assignment(disciplina, data_entrega)
+
+def alterar_prova(disciplina, data_antiga, nova_data=None, nova_descricao=None):
+    return update_exam(disciplina, data_antiga, nova_data, nova_descricao)
+
+def alterar_trabalho(disciplina, data_antiga, nova_data=None, nova_descricao=None):
+    return update_assignment(disciplina, data_antiga, nova_data, nova_descricao)
+
+def remover_horario_tool(disciplina, dia_semana, hora_inicio):
+    return remove_horario_db(disciplina, dia_semana, hora_inicio)
+
+def alterar_materia_tool(nome, professor=None, sala=None):
+    return update_disciplina(nome, novo_professor=professor, nova_sala=sala)
     

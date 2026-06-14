@@ -80,15 +80,15 @@ def seed_db():
 
     hoje  = datetime.now().strftime('%Y-%m-%d')
     tarefas = [
-        ('Estudar para prova de IA', 'Revisar Redes Neurais', amanha,         'pendente',  3),
-        ('Implementar Árvore B',     'Projeto de ED',         '2026-06-10',   'pendente',  2),
-        ('Ler artigo de RAG',        'Opcional',               None,          'pendente',  1),
-        ('Configurar Roteador',      'Laboratório de Redes',  proxima_semana, 'pendente',  2),
-        ('Diagrama de Classes',      'Trabalho de Eng. Soft', '2026-06-05',   'pendente',  3),
-        ('Revisar SQL',              'Exercícios de BD',       hoje,          'concluido', 1),
+        ('Estudar para prova de IA', 'Revisar Redes Neurais', amanha,         'pendente'),
+        ('Implementar Árvore B',     'Projeto de ED',         '2026-06-10',   'pendente'),
+        ('Ler artigo de RAG',        'Opcional',               None,          'pendente'),
+        ('Configurar Roteador',      'Laboratório de Redes',  proxima_semana, 'pendente'),
+        ('Diagrama de Classes',      'Trabalho de Eng. Soft', '2026-06-05',   'pendente'),
+        ('Revisar SQL',              'Exercícios de BD',       hoje,          'concluido'),
     ]
     cursor.executemany(
-        'INSERT INTO tarefas (titulo, descricao, data_entrega, status, prioridade) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO tarefas (titulo, descricao, data_entrega, status) VALUES (?, ?, ?, ?)',
         tarefas
     )
 

@@ -93,6 +93,61 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
             arquivos = list(set([m['arquivo'] for m in vetor_store.metadados]))
         resultado = obter_resumo_academico(materiais=arquivos)
 
+    elif tool_name == "remover_tarefa":
+        resultado = remover_tarefa(titulo=argumentos.get("titulo"))
+
+    elif tool_name == "alterar_tarefa":
+        resultado = alterar_tarefa(
+            titulo       = argumentos.get("titulo"),
+            descricao    = argumentos.get("descricao"),
+            data_entrega = argumentos.get("data_entrega"),
+        )
+
+    elif tool_name == "listar_tarefas_concluidas":
+        resultado = listar_tarefas_concluidas()
+
+    elif tool_name == "remover_prova":
+        resultado = remover_prova(
+            disciplina = argumentos.get("disciplina"),
+            data       = argumentos.get("data"),
+        )
+
+    elif tool_name == "remover_trabalho":
+        resultado = remover_trabalho(
+            disciplina   = argumentos.get("disciplina"),
+            data_entrega = argumentos.get("data_entrega"),
+        )
+
+    elif tool_name == "alterar_prova":
+        resultado = alterar_prova(
+            disciplina     = argumentos.get("disciplina"),
+            data_antiga    = argumentos.get("data_antiga"),
+            nova_data      = argumentos.get("nova_data"),
+            nova_descricao = argumentos.get("nova_descricao"),
+        )
+
+    elif tool_name == "alterar_trabalho":
+        resultado = alterar_trabalho(
+            disciplina     = argumentos.get("disciplina"),
+            data_antiga    = argumentos.get("data_antiga"),
+            nova_data      = argumentos.get("nova_data"),
+            nova_descricao = argumentos.get("nova_descricao"),
+        )
+
+    elif tool_name == "remover_horario":
+        resultado = remover_horario_tool(
+            disciplina  = argumentos.get("disciplina"),
+            dia_semana  = argumentos.get("dia_semana"),
+            hora_inicio = argumentos.get("hora_inicio"),
+        )
+
+    elif tool_name == "alterar_materia":
+        resultado = alterar_materia_tool(
+            nome      = argumentos.get("nome"),
+            professor = argumentos.get("professor"),
+            sala      = argumentos.get("sala"),
+        )
+
     elif tool_name == "planejar_estudos":
         planner = StudyPlannerService(vetor_store=vetor_store)
         resultado = planner.montar_contexto()

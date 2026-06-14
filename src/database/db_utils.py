@@ -124,10 +124,10 @@ def get_pending_tasks():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT titulo, descricao, data_entrega, prioridade
+        SELECT titulo, descricao, data_entrega
         FROM tarefas
         WHERE status = 'pendente'
-        ORDER BY data_entrega ASC, prioridade DESC
+        ORDER BY data_entrega ASC
     ''')
     rows = cursor.fetchall()
     conn.close()
@@ -145,8 +145,8 @@ def add_agenda_item(tipo, titulo, descricao, data, disciplina_nome=None, hora_in
 
     if tipo == 'tarefa':
         cursor.execute(
-            'INSERT INTO tarefas (titulo, descricao, data_entrega, status, prioridade) VALUES (?, ?, ?, ?, ?)',
-            (titulo, descricao or '', data, 'pendente', 1)
+            'INSERT INTO tarefas (titulo, descricao, data_entrega, status) VALUES (?, ?, ?, ?)',
+            (titulo, descricao or '', data, 'pendente')
         )
         conn.commit()
         conn.close()
@@ -410,3 +410,217 @@ def update_horario(disciplina_nome, dia_semana_antigo, novo_dia_semana=None, nov
         return {"status": "erro", "mensagem": f"Erro ao atualizar horário: {str(e)}"}
     finally:
         conn.close()
+
+def get_completed_tasks():
+    """Retorna tarefas concluídas."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT titulo, descricao, data_entrega
+        FROM tarefas
+        WHERE status = 'concluido'
+        ORDER BY data_entrega DESC
+    ''')
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def remove_task(titulo):
+    """Remove uma tarefa pelo título."""
+    if not titulo:
+        return {"status": "erro", "mensagem": "Título é obrigatório."}
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM tarefas WHERE LOWER(titulo) = LOWER(?)", (titulo,))
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+    
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Tarefa '{titulo}' removida."}
+    return {"status": "erro", "mensagem": f"Tarefa '{titulo}' não encontrada."}
+
+def update_task(titulo, nova_descricao=None, nova_data_entrega=None):
+    """Atualiza uma tarefa existente."""
+    if not titulo:
+        return {"status": "erro", "mensagem": "Título é obrigatório."}
+
+    updates = []
+    params = []
+    if nova_descricao is not None:
+        updates.append("descricao = ?")
+        params.append(nova_descricao)
+    if nova_data_entrega is not None:
+        updates.append("data_entrega = ?")
+        params.append(nova_data_entrega)
+
+    if not updates:
+        return {"status": "erro", "mensagem": "Nenhum dado para alteração fornecido."}
+
+    params.append(titulo)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(f"UPDATE tarefas SET {', '.join(updates)} WHERE LOWER(titulo) = LOWER(?)", params)
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Tarefa '{titulo}' atualizada."}
+    return {"status": "erro", "mensagem": f"Tarefa '{titulo}' não encontrada."}
+
+def remove_exam(disciplina_nome, data):
+    """Remove uma prova de uma disciplina em uma data específica."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)', (disciplina_nome,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return {"status": "erro", "mensagem": f"Disciplina '{disciplina_nome}' não encontrada."}
+    
+    cursor.execute("DELETE FROM provas WHERE disciplina_id = ? AND data = ?", (row['id'], data))
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+    
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Prova de '{disciplina_nome}' em {data} removida."}
+    return {"status": "erro", "mensagem": "Prova não encontrada com esses critérios."}
+
+def update_exam(disciplina_nome, data_antiga, nova_data=None, nova_descricao=None):
+    """Atualiza data ou descrição de uma prova."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)', (disciplina_nome,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return {"status": "erro", "mensagem": f"Disciplina '{disciplina_nome}' não encontrada."}
+    
+    updates = []
+    params = []
+    if nova_data:
+        updates.append("data = ?")
+        params.append(nova_data)
+    if nova_descricao is not None:
+        updates.append("descricao = ?")
+        params.append(nova_descricao)
+        
+    if not updates:
+        conn.close()
+        return {"status": "erro", "mensagem": "Nenhum dado para alteração fornecido."}
+
+    params.extend([row['id'], data_antiga])
+    cursor.execute(f"UPDATE provas SET {', '.join(updates)} WHERE disciplina_id = ? AND data = ?", params)
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Prova de '{disciplina_nome}' atualizada."}
+    return {"status": "erro", "mensagem": "Prova não encontrada."}
+
+def remove_assignment(disciplina_nome, data_entrega):
+    """Remove um trabalho."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)', (disciplina_nome,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return {"status": "erro", "mensagem": f"Disciplina '{disciplina_nome}' não encontrada."}
+    
+    cursor.execute("DELETE FROM trabalhos WHERE disciplina_id = ? AND data_entrega = ?", (row['id'], data_entrega))
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+    
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Trabalho de '{disciplina_nome}' para {data_entrega} removido."}
+    return {"status": "erro", "mensagem": "Trabalho não encontrado."}
+
+def update_assignment(disciplina_nome, data_antiga, nova_data=None, nova_descricao=None):
+    """Atualiza um trabalho."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)', (disciplina_nome,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return {"status": "erro", "mensagem": f"Disciplina '{disciplina_nome}' não encontrada."}
+    
+    updates = []
+    params = []
+    if nova_data:
+        updates.append("data_entrega = ?")
+        params.append(nova_data)
+    if nova_descricao is not None:
+        updates.append("descricao = ?")
+        params.append(nova_descricao)
+        
+    if not updates:
+        conn.close()
+        return {"status": "erro", "mensagem": "Nenhum dado para alteração fornecido."}
+
+    params.extend([row['id'], data_antiga])
+    cursor.execute(f"UPDATE trabalhos SET {', '.join(updates)} WHERE disciplina_id = ? AND data_entrega = ?", params)
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Trabalho de '{disciplina_nome}' atualizado."}
+    return {"status": "erro", "mensagem": "Trabalho não encontrado."}
+
+def remove_horario(disciplina_nome, dia_semana, hora_inicio):
+    """Remove um horário específico."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)', (disciplina_nome,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return {"status": "erro", "mensagem": f"Disciplina '{disciplina_nome}' não encontrada."}
+    
+    cursor.execute("DELETE FROM horarios WHERE disciplina_id = ? AND dia_semana = ? AND hora_inicio = ?", 
+                   (row['id'], dia_semana, hora_inicio))
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+    
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Horário de '{disciplina_nome}' removido."}
+    return {"status": "erro", "mensagem": "Horário não encontrado."}
+
+def update_disciplina(nome_antigo, novo_nome=None, novo_professor=None, nova_sala=None):
+    """Atualiza dados da disciplina."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    updates = []
+    params = []
+    if novo_nome:
+        updates.append("nome = ?")
+        params.append(novo_nome)
+    if novo_professor is not None:
+        updates.append("professor = ?")
+        params.append(novo_professor)
+    if nova_sala is not None:
+        updates.append("sala = ?")
+        params.append(nova_sala)
+
+    if not updates:
+        conn.close()
+        return {"status": "erro", "mensagem": "Nenhum dado para alteração fornecido."}
+
+    params.append(nome_antigo)
+    cursor.execute(f"UPDATE disciplinas SET {', '.join(updates)} WHERE LOWER(nome) = LOWER(?)", params)
+    conn.commit()
+    count = cursor.rowcount
+    conn.close()
+
+    if count > 0:
+        return {"status": "sucesso", "mensagem": f"Disciplina '{nome_antigo}' atualizada."}
+    return {"status": "erro", "mensagem": f"Disciplina '{nome_antigo}' não encontrada."}

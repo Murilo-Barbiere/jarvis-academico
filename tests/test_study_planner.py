@@ -5,25 +5,29 @@ from src.tools.study_planner import StudyPlannerService
 
 @patch('src.tools.study_planner.get_classes_today')
 @patch('src.tools.study_planner.get_upcoming_exams')
+@patch('src.tools.study_planner.get_upcoming_assignments')
 @patch('src.tools.study_planner.get_pending_tasks')
-def test_montar_contexto_chaves_obrigatorias(mock_tasks, mock_exams, mock_today):
+def test_montar_contexto_chaves_obrigatorias(mock_tasks, mock_assignments, mock_exams, mock_today):
     mock_today.return_value = {"aulas": []}
     mock_exams.return_value = []
+    mock_assignments.return_value = []
     mock_tasks.return_value = []
     
     planner = StudyPlannerService()
     contexto = planner.montar_contexto()
     
-    obrigatorias = ["tipo", "data_hoje", "agenda_hoje", "provas", "tarefas", "materiais_rag", "resumo_meta"]
+    obrigatorias = ["tipo", "data_hoje", "agenda_hoje", "provas", "trabalhos", "tarefas", "materiais_rag", "resumo_meta"]
     for chave in obrigatorias:
         assert chave in contexto
 
 @patch('src.tools.study_planner.get_classes_today')
 @patch('src.tools.study_planner.get_upcoming_exams')
+@patch('src.tools.study_planner.get_upcoming_assignments')
 @patch('src.tools.study_planner.get_pending_tasks')
-def test_sem_vetor_store_materiais_vazio(mock_tasks, mock_exams, mock_today):
+def test_sem_vetor_store_materiais_vazio(mock_tasks, mock_assignments, mock_exams, mock_today):
     mock_today.return_value = {"aulas": []}
     mock_exams.return_value = [{"disciplina": "Matematica", "data": "2026-06-20"}]
+    mock_assignments.return_value = []
     mock_tasks.return_value = []
     
     planner = StudyPlannerService(vetor_store=None)
@@ -33,10 +37,12 @@ def test_sem_vetor_store_materiais_vazio(mock_tasks, mock_exams, mock_today):
 
 @patch('src.tools.study_planner.get_classes_today')
 @patch('src.tools.study_planner.get_upcoming_exams')
+@patch('src.tools.study_planner.get_upcoming_assignments')
 @patch('src.tools.study_planner.get_pending_tasks')
-def test_com_vetor_store_mockado(mock_tasks, mock_exams, mock_today):
+def test_com_vetor_store_mockado(mock_tasks, mock_assignments, mock_exams, mock_today):
     mock_today.return_value = {"aulas": []}
     mock_exams.return_value = [{"disciplina": "IA", "data": "2026-06-20"}]
+    mock_assignments.return_value = []
     mock_tasks.return_value = []
     
     mock_vs = MagicMock()
@@ -51,11 +57,13 @@ def test_com_vetor_store_mockado(mock_tasks, mock_exams, mock_today):
 
 @patch('src.tools.study_planner.get_classes_today')
 @patch('src.tools.study_planner.get_upcoming_exams')
+@patch('src.tools.study_planner.get_upcoming_assignments')
 @patch('src.tools.study_planner.get_pending_tasks')
-def test_calculo_dias_restantes(mock_tasks, mock_exams, mock_today):
+def test_calculo_dias_restantes(mock_tasks, mock_assignments, mock_exams, mock_today):
     amanha = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     mock_today.return_value = {"aulas": []}
     mock_exams.return_value = [{"disciplina": "Teste", "data": amanha}]
+    mock_assignments.return_value = []
     mock_tasks.return_value = []
     
     planner = StudyPlannerService()
@@ -67,14 +75,16 @@ def test_calculo_dias_restantes(mock_tasks, mock_exams, mock_today):
 
 @patch('src.tools.study_planner.get_classes_today')
 @patch('src.tools.study_planner.get_upcoming_exams')
+@patch('src.tools.study_planner.get_upcoming_assignments')
 @patch('src.tools.study_planner.get_pending_tasks')
-def test_limite_chamadas_rag(mock_tasks, mock_exams, mock_today):
+def test_limite_chamadas_rag(mock_tasks, mock_assignments, mock_exams, mock_today):
     mock_today.return_value = {"aulas": []}
     # 5 provas
     mock_exams.return_value = [
         {"disciplina": f"D{i}", "data": (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d')}
         for i in range(1, 6)
     ]
+    mock_assignments.return_value = []
     mock_tasks.return_value = []
     
     mock_vs = MagicMock()

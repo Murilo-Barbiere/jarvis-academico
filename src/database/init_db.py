@@ -62,7 +62,6 @@ def init_db():
         descricao TEXT,
         data_entrega TEXT,
         status TEXT DEFAULT 'pendente',
-        prioridade INTEGER DEFAULT 1,
         criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')

@@ -49,8 +49,8 @@ class StudyPlannerService:
                 t_dict['dias_restantes'] = 999
             trabalhos.append(t_dict)
             
-        # Ordena tarefas por data_entrega e prioridade
-        tarefas = sorted(tarefas_raw, key=lambda x: (x.get('data_entrega') or '9999-12-31', -(x.get('prioridade') or 0)))
+        # Ordena tarefas por data_entrega
+        tarefas = sorted(tarefas_raw, key=lambda x: (x.get('data_entrega') or '9999-12-31'))
 
         # Etapa 2 — busca RAG por disciplina
         materiais_rag = {}
