@@ -1,5 +1,6 @@
 import time
 import os
+from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
 from src.utils.logger import configurar_logger, registrar_query_rewriter
@@ -53,10 +54,21 @@ class QueryRewriterService:
 
         start_time = time.time()
         try:
+            agora = datetime.now()
+            data_iso = agora.strftime("%Y-%m-%d")
+            
+            meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+            dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+            
+            dia_extenso = f"{dias_semana[agora.weekday()]}, {agora.day} de {meses[agora.month - 1]} de {agora.year}"
+
+            full_system_prompt = f"### DATA ATUAL: {data_iso} ({dia_extenso})\n\n{self.system_prompt}"
+
             resposta = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": self.system_prompt},
+                    {"role": "system", "content": full_system_prompt},
                     {"role": "user", "content": user_query}
                 ],
                 temperature=0

@@ -34,16 +34,16 @@ def main():
         logger.info(f"Índice carregado: {len(vetor_store.chunks)} chunks")
 
     print("\n=== JARVIS Acadêmico Pronto ===")
-    print("Digite 'sair' para encerrar ou 'limpar' para resetar a memória.")
+    print("Digite '/sair' para encerrar ou '/limpar' para resetar a memória.")
 
     while True:
         query = input("\nVocê: ")
 
-        if query.lower() == "sair":
+        if query.lower() == "/sair":
             logger.info("Sistema encerrado pelo usuário")
             break
         
-        if query.lower() == "limpar":
+        if query.lower() == "/limpar":
             jarvis.memory.clear()
             print("Histórico de conversa limpo!")
             continue

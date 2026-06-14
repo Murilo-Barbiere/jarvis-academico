@@ -79,6 +79,22 @@ python main.py
 
 ---
 
+## 🧪 Testes
+
+O projeto utiliza **pytest** para testes automatizados. Para rodar todos os testes:
+
+```bash
+pytest
+```
+
+Para rodar um arquivo de teste específico:
+
+```bash
+pytest tests/test_agente.py
+```
+
+---
+
 ## 💬 Como Usar
 
 Após iniciar, o sistema entra em loop de perguntas. Digite sua pergunta em linguagem natural:
@@ -99,10 +115,12 @@ Digite `sair` para encerrar.
 
 | Ferramenta | Descrição |
 |---|---|
-| `consultar_agenda` | Aulas de hoje + provas nos próximos 7 dias |
+| `consultar_agenda` | Aulas de hoje + provas e trabalhos nos próximos 7 dias |
 | `consultar_semana` | Grade completa da semana (seg–sex) |
-| `adicionar_na_agenda` | Adiciona provas, tarefas ou horários recorrentes |
+| `adicionar_na_agenda` | Adiciona provas, trabalhos, tarefas ou horários recorrentes |
 | `listar_tarefas` | Lista tarefas pendentes |
+| `listar_trabalhos` | Lista todos os trabalhos cadastrados |
+| `listar_provas` | Lista todas as provas cadastradas |
 | `adicionar_tarefa` | Atalho rápido para criar tarefas |
 | `concluir_tarefa` | Marca uma tarefa como concluída |
 | `buscar_material_rag` | Busca semântica nos PDFs indexados |

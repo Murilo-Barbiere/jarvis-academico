@@ -61,27 +61,34 @@ def seed_db():
 
     provas = [
         (ia, amanha,         'P1 de Inteligência Artificial'),
-        (ed, '2026-06-15',   'Trabalho de Estrutura de Dados'),
         (bd, '2026-06-20',   'Prova Final de Banco de Dados'),
         (rd, proxima_semana, 'Teste de Redes'),
-        (es, '2026-07-01',   'Projeto de Engenharia de Software'),
     ]
     cursor.executemany(
         'INSERT INTO provas (disciplina_id, data, descricao) VALUES (?, ?, ?)',
         provas
     )
 
-    hoje  = datetime.now().strftime('%Y-%m-%d')
-    tarefas = [
-        ('Estudar para prova de IA', 'Revisar Redes Neurais', amanha,         'pendente',  3),
-        ('Implementar Árvore B',     'Projeto de ED',         '2026-06-10',   'pendente',  2),
-        ('Ler artigo de RAG',        'Opcional',               None,          'pendente',  1),
-        ('Configurar Roteador',      'Laboratório de Redes',  proxima_semana, 'pendente',  2),
-        ('Diagrama de Classes',      'Trabalho de Eng. Soft', '2026-06-05',   'pendente',  3),
-        ('Revisar SQL',              'Exercícios de BD',       hoje,          'concluido', 1),
+    trabalhos = [
+        (ed, '2026-06-15',   'Trabalho de Estrutura de Dados'),
+        (es, '2026-07-01',   'Projeto de Engenharia de Software'),
     ]
     cursor.executemany(
-        'INSERT INTO tarefas (titulo, descricao, data_entrega, status, prioridade) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO trabalhos (disciplina_id, data_entrega, descricao) VALUES (?, ?, ?)',
+        trabalhos
+    )
+
+    hoje  = datetime.now().strftime('%Y-%m-%d')
+    tarefas = [
+        ('Estudar para prova de IA', 'Revisar Redes Neurais', amanha,         'pendente'),
+        ('Implementar Árvore B',     'Projeto de ED',         '2026-06-10',   'pendente'),
+        ('Ler artigo de RAG',        'Opcional',               None,          'pendente'),
+        ('Configurar Roteador',      'Laboratório de Redes',  proxima_semana, 'pendente'),
+        ('Diagrama de Classes',      'Trabalho de Eng. Soft', '2026-06-05',   'pendente'),
+        ('Revisar SQL',              'Exercícios de BD',       hoje,          'concluido'),
+    ]
+    cursor.executemany(
+        'INSERT INTO tarefas (titulo, descricao, data_entrega, status) VALUES (?, ?, ?, ?)',
         tarefas
     )
 
