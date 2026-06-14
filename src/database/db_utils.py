@@ -74,6 +74,51 @@ def get_upcoming_exams(days=7):
     conn.close()
     return [dict(r) for r in rows]
 
+def get_upcoming_assignments(days=7):
+    """Retorna trabalhos/entregas nos próximos X dias."""
+    today       = datetime.now().strftime('%Y-%m-%d')
+    future_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT t.data_entrega, d.nome AS disciplina, t.descricao
+        FROM trabalhos t
+        JOIN disciplinas d ON t.disciplina_id = d.id
+        WHERE t.data_entrega BETWEEN ? AND ?
+        ORDER BY t.data_entrega
+    ''', (today, future_date))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def get_all_assignments():
+    """Retorna todos os trabalhos cadastrados."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT t.data_entrega, d.nome AS disciplina, t.descricao
+        FROM trabalhos t
+        JOIN disciplinas d ON t.disciplina_id = d.id
+        ORDER BY t.data_entrega
+    ''')
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def get_all_exams():
+    """Retorna todas as provas cadastradas."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT p.data, d.nome AS disciplina, p.descricao
+        FROM provas p
+        JOIN disciplinas d ON p.disciplina_id = d.id
+        ORDER BY p.data
+    ''')
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
 def get_pending_tasks():
     """Retorna tarefas pendentes."""
     conn = get_db_connection()
@@ -139,6 +184,18 @@ def add_agenda_item(tipo, titulo, descricao, data, disciplina_nome=None, hora_in
         conn.commit()
         conn.close()
         return {"status": "sucesso", "mensagem": f"Prova de '{disciplina_nome}' em {data} adicionada."}
+
+    if tipo == 'trabalho':
+        if not data:
+            conn.close()
+            return {"status": "erro", "mensagem": "Data de entrega é obrigatória para trabalhos."}
+        cursor.execute(
+            'INSERT INTO trabalhos (disciplina_id, data_entrega, descricao) VALUES (?, ?, ?)',
+            (disciplina_id, data, descricao or titulo)
+        )
+        conn.commit()
+        conn.close()
+        return {"status": "sucesso", "mensagem": f"Trabalho de '{disciplina_nome}' para {data} adicionado."}
 
     if tipo == 'horario':
         if dia_semana is None or not hora_inicio or not hora_fim:
@@ -242,6 +299,11 @@ def remove_disciplina(nome):
         (disciplina_id,)
     )
 
+    cursor.execute(
+        "DELETE FROM trabalhos WHERE disciplina_id = ?",
+        (disciplina_id,)
+    )
+
     # remove disciplina
     cursor.execute(
         "DELETE FROM disciplinas WHERE id = ?",
@@ -261,6 +323,7 @@ if __name__ == "__main__":
     print("Aulas de hoje:", get_classes_today())
     print("Semana:", get_classes_this_week())
     print("Próximas provas:", get_upcoming_exams())
+    print("Próximos trabalhos:", get_upcoming_assignments())
     print("Tarefas pendentes:", get_pending_tasks())
 
 def get_disciplinas():

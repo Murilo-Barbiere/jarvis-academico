@@ -4,6 +4,8 @@ from src.tools.tools import (
     adicionar_na_agenda,
     alterar_horario,
     listar_tarefas,
+    listar_trabalhos,
+    listar_provas,
     adicionar_tarefa,
     concluir_tarefa,
     buscar_material_rag,
@@ -49,6 +51,12 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
 
     elif tool_name == "listar_tarefas":
         resultado = listar_tarefas()
+
+    elif tool_name == "listar_trabalhos":
+        resultado = listar_trabalhos()
+
+    elif tool_name == "listar_provas":
+        resultado = listar_provas()
 
     elif tool_name == "adicionar_tarefa":
         resultado = adicionar_tarefa(

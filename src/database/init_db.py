@@ -46,6 +46,16 @@ def init_db():
     ''')
 
     cursor.execute('''
+    CREATE TABLE IF NOT EXISTS trabalhos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        disciplina_id INTEGER,
+        data_entrega TEXT NOT NULL,
+        descricao TEXT,
+        FOREIGN KEY (disciplina_id) REFERENCES disciplinas (id)
+    )
+    ''')
+
+    cursor.execute('''
     CREATE TABLE IF NOT EXISTS tarefas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         titulo TEXT NOT NULL,

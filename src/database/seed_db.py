@@ -61,14 +61,21 @@ def seed_db():
 
     provas = [
         (ia, amanha,         'P1 de Inteligência Artificial'),
-        (ed, '2026-06-15',   'Trabalho de Estrutura de Dados'),
         (bd, '2026-06-20',   'Prova Final de Banco de Dados'),
         (rd, proxima_semana, 'Teste de Redes'),
-        (es, '2026-07-01',   'Projeto de Engenharia de Software'),
     ]
     cursor.executemany(
         'INSERT INTO provas (disciplina_id, data, descricao) VALUES (?, ?, ?)',
         provas
+    )
+
+    trabalhos = [
+        (ed, '2026-06-15',   'Trabalho de Estrutura de Dados'),
+        (es, '2026-07-01',   'Projeto de Engenharia de Software'),
+    ]
+    cursor.executemany(
+        'INSERT INTO trabalhos (disciplina_id, data_entrega, descricao) VALUES (?, ?, ?)',
+        trabalhos
     )
 
     hoje  = datetime.now().strftime('%Y-%m-%d')

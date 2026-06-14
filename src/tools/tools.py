@@ -8,6 +8,9 @@ from src.database.db_utils import (
     get_classes_this_week,
     get_pending_tasks,
     get_upcoming_exams,
+    get_upcoming_assignments,
+    get_all_assignments,
+    get_all_exams,
     add_agenda_item,
     get_db_connection,
     add_disciplina,
@@ -18,10 +21,11 @@ from src.database.db_utils import (
 # ── Agenda ────────────────────────────────────────────────────────────────────
 
 def consultar_agenda():
-    """Retorna aulas de hoje + próximas provas (7 dias)."""
-    aulas  = get_classes_today()
-    provas = get_upcoming_exams(days=7)
-    return {"aulas": aulas, "provas_proximas": provas}
+    """Retorna aulas de hoje + próximas provas e trabalhos (7 dias)."""
+    aulas     = get_classes_today()
+    provas    = get_upcoming_exams(days=7)
+    trabalhos = get_upcoming_assignments(days=7)
+    return {"aulas": aulas, "provas_proximas": provas, "trabalhos_proximos": trabalhos}
 
 def consultar_semana():
     """Retorna a grade completa da semana."""
@@ -32,7 +36,7 @@ def adicionar_na_agenda(tipo, titulo, descricao="", data=None,
                         hora_fim=None, dia_semana=None):
     """
     Adiciona um item na agenda.
-    tipo: 'prova' | 'tarefa' | 'horario'
+    tipo: 'prova' | 'trabalho' | 'tarefa' | 'horario'
     """
     return add_agenda_item(
         tipo=tipo,
@@ -61,6 +65,14 @@ def alterar_horario(disciplina, dia_semana, novo_dia_semana=None, hora_inicio=No
 
 def listar_tarefas():
     return get_pending_tasks()
+
+def listar_trabalhos():
+    """Lista todos os trabalhos cadastrados."""
+    return get_all_assignments()
+
+def listar_provas():
+    """Lista todas as provas cadastradas."""
+    return get_all_exams()
 
 def adicionar_tarefa(titulo, descricao="", data_entrega=None):
     if not titulo or not titulo.strip():
@@ -131,15 +143,17 @@ def buscar_material_rag(vetor_store, pergunta):
 # ── Resumo Acadêmico ──────────────────────────────────────────────────────────
 
 def obter_resumo_academico(materiais=None):
-    """Consolida tarefas pendentes, provas nos próximos 30 dias e aulas de hoje."""
+    """Consolida tarefas pendentes, provas e trabalhos nos próximos 30 dias e aulas de hoje."""
     tarefas = get_pending_tasks()
     provas = get_upcoming_exams(days=30)
+    trabalhos = get_upcoming_assignments(days=30)
     agenda = get_classes_today()
 
     return {
         "status": "sucesso",
         "tarefas_pendentes": tarefas,
         "provas_proximos_30_dias": provas,
+        "trabalhos_proximos_30_dias": trabalhos,
         "agenda_hoje": agenda,
         "materiais_disponiveis": materiais or []
     }

@@ -2,6 +2,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import json
+from datetime import datetime
 from typing import Optional, Dict, Any
 
 from src.llm.SYSTEM_PROMPT import SYSTEM_PROMPT
@@ -47,8 +48,20 @@ class JarvisAgent:
 
     def _get_messages_for_llm(self, user_query: Optional[str] = None, system_override: Optional[str] = None) -> list:
         """Constrói a lista de mensagens incluindo o prompt do sistema e o histórico."""
+        agora = datetime.now()
+        data_iso = agora.strftime("%Y-%m-%d")
+        
+        meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                 "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+        dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+        
+        dia_extenso = f"{dias_semana[agora.weekday()]}, {agora.day} de {meses[agora.month - 1]} de {agora.year}"
+
+        system_base = system_override or self.system_prompt
+        full_system_prompt = f"### DATA ATUAL: {data_iso} ({dia_extenso})\n\n{system_base}"
+
         messages = [
-            {"role": "system", "content": system_override or self.system_prompt}
+            {"role": "system", "content": full_system_prompt}
         ]
         
         # Adiciona o histórico de conversas
