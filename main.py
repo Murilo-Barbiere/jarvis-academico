@@ -81,7 +81,10 @@ def main():
 
         # 3. Geração da Resposta Final (com síntese e atualização da memória)
         # Usamos a query original para a memória e resposta final para manter naturalidade
-        resposta = jarvis.gerar_resposta_final(query, contexto)
+        if nome_tool == "planejar_estudos":
+            resposta = jarvis.gerar_plano_estudos(query, contexto)
+        else:
+            resposta = jarvis.gerar_resposta_final(query, contexto)
         
         print(f"\nJARVIS: {resposta}")
 

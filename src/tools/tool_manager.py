@@ -11,6 +11,7 @@ from src.tools.tools import (
     listar_materias,
     obter_resumo_academico,
 )
+from src.tools.study_planner import StudyPlannerService
 from src.utils.logger import registrar_tool
 
 
@@ -73,6 +74,10 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
         if vetor_store and hasattr(vetor_store, 'metadados'):
             arquivos = list(set([m['arquivo'] for m in vetor_store.metadados]))
         resultado = obter_resumo_academico(materiais=arquivos)
+
+    elif tool_name == "planejar_estudos":
+        planner = StudyPlannerService(vetor_store=vetor_store)
+        resultado = planner.montar_contexto()
 
     else:
         resultado = {"erro": f"Ferramenta '{tool_name}' não encontrada."}

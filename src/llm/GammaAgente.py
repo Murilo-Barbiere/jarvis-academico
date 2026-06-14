@@ -11,6 +11,26 @@ from src.utils.logger import configurar_logger
 load_dotenv()
 logger = configurar_logger()
 
+PLANO_ESTUDOS_SYSTEM_PROMPT = """
+Você é o JARVIS Acadêmico, especialista em planejamento de estudos universitários.
+
+Com base no contexto fornecido, crie um plano de estudos personalizado com:
+1. Situação geral — resumo dos prazos críticos
+2. Prioridades de hoje — o que estudar agora e por quê
+3. Plano por disciplina — tópicos-chave do material RAG + tempo sugerido proporcional aos dias restantes
+4. Tarefas urgentes — integradas ao plano
+5. Dica motivacional — curta e objetiva
+
+REGRAS:
+- Use dias_restantes de cada prova para priorizar
+- Se houver materiais_rag, mencione os tópicos específicos encontrados
+- Se não houver materiais_rag, sugira estratégias gerais pela disciplina
+- Responda em Português (Brasil)
+
+CONTEXTO:
+{contexto}
+"""
+
 class JarvisAgent:
     """
     Classe principal do Agente JARVIS Acadêmico.
@@ -89,6 +109,32 @@ class JarvisAgent:
             return conteudo_resposta
         except Exception as e:
             return f"Erro ao gerar resposta final: {str(e)}"
+
+    def gerar_plano_estudos(self, user_query: str, contexto: str) -> str:
+        """
+        Gera um plano de estudos personalizado com base no contexto acadêmico e RAG.
+        """
+        system = PLANO_ESTUDOS_SYSTEM_PROMPT.format(contexto=contexto)
+        
+        messages = self._get_messages_for_llm(user_query, system_override=system)
+        
+        try:
+            resposta = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=0.3
+            )
+            
+            conteudo_resposta = resposta.choices[0].message.content
+            
+            # Atualiza a memória com a interação completa
+            self.memory.add_message("user", user_query)
+            self.memory.add_message("assistant", conteudo_resposta)
+            
+            return conteudo_resposta
+        except Exception as e:
+            logger.error(f"Erro ao gerar plano de estudos: {e}")
+            return self.gerar_resposta_final(user_query, contexto)
 
 # Mantendo compatibilidade com funções existentes se necessário,
 # mas encorajando o uso da classe JarvisAgent.
