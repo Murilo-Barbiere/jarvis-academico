@@ -83,6 +83,10 @@ def main():
         # Usamos a query original para a memória e resposta final para manter naturalidade
         if nome_tool == "planejar_estudos":
             resposta = jarvis.gerar_plano_estudos(query, contexto)
+        elif nome_tool == "iniciar_quiz":
+            resposta = jarvis.iniciar_quiz(query, contexto)
+        elif nome_tool == "encerrar_quiz":
+            resposta = jarvis.encerrar_quiz()
         else:
             resposta = jarvis.gerar_resposta_final(query, contexto)
         

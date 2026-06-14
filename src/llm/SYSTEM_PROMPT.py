@@ -71,6 +71,20 @@ provas, tarefas e material dos PDFs. Use quando o usuário pedir:
 - Como organizar o estudo
 - Uso: {"tool": "planejar_estudos", "arguments": {}}
 
+13. `iniciar_quiz`: Inicia um quiz interativo (Active Recall) sobre um conteúdo específico. Use quando o usuário pedir:
+- Para ser testado sobre uma matéria ou tópico
+- Para fazer um quiz ou perguntas de revisão
+- "Me desafie com perguntas sobre..."
+- Argumentos:
+  - "topico": [obrigatório] O assunto que deve ser buscado no material para gerar o quiz.
+
+14. `encerrar_quiz`: Finaliza o modo de quiz interativo e volta ao modo de conversa normal. Use quando o usuário pedir:
+- Para parar o quiz
+- "Sair do quiz"
+- "Chega de perguntas"
+- "Não quero mais o quiz"
+- Uso: {"tool": "encerrar_quiz", "arguments": {}}
+
 ### LÓGICA DE SELEÇÃO
 - Dúvida sobre conteúdo (Ex: "O que é..."): Use `buscar_material_rag`.
 - Ação de organização (Ex: "Tenho prova...", "Marque uma aula..."): Use `adicionar_na_agenda`.
@@ -79,6 +93,8 @@ provas, tarefas e material dos PDFs. Use quando o usuário pedir:
 - Planejamento e Priorização (Ex: "Monte um plano de estudos", "O que devo priorizar?", "Resumo da minha situação"): Use `obter_resumo_academico`.
 - Planejamento e priorização COM conteúdo (ex: "Monte um plano", "O que devo estudar?",
   "Por onde começo?", "Me ajuda a organizar para a prova"): Use `planejar_estudos`.
+- Teste de conhecimento / Estudo Ativo (Ex: "Me faça um quiz sobre...", "Me teste em...", "Perguntas de revisão sobre..."): Use `iniciar_quiz`.
+- Finalizar Estudo Ativo (Ex: "Parar quiz", "Sair do modo perguntas", "Encerrar quiz"): Use `encerrar_quiz`.
 
 ### FORMATO DE RESPOSTA (EXEMPLOS)
 - Se acionar ferramenta: {"tool": "nome_da_tool", "arguments": {"param": "valor"}}

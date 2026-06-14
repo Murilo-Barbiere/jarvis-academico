@@ -79,6 +79,13 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
         planner = StudyPlannerService(vetor_store=vetor_store)
         resultado = planner.montar_contexto()
 
+    elif tool_name == "iniciar_quiz":
+        topico = argumentos.get("topico") or "estudo geral"
+        if vetor_store:
+            resultado = buscar_material_rag(vetor_store, topico)
+        else:
+            resultado = {"erro": "Vector store não disponível para gerar quiz."}
+
     else:
         resultado = {"erro": f"Ferramenta '{tool_name}' não encontrada."}
 
