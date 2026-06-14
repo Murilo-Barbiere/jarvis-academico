@@ -2,6 +2,7 @@ from src.tools.tools import (
     consultar_agenda,
     consultar_semana,
     adicionar_na_agenda,
+    alterar_horario,
     listar_tarefas,
     adicionar_tarefa,
     concluir_tarefa,
@@ -35,6 +36,15 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
             hora_inicio = argumentos.get("hora_inicio"),
             hora_fim    = argumentos.get("hora_fim"),
             dia_semana  = argumentos.get("dia_semana"),
+        )
+
+    elif tool_name == "alterar_horario":
+        resultado = alterar_horario(
+            disciplina      = argumentos.get("disciplina"),
+            dia_semana      = argumentos.get("dia_semana"),
+            novo_dia_semana = argumentos.get("novo_dia_semana"),
+            hora_inicio     = argumentos.get("hora_inicio"),
+            hora_fim        = argumentos.get("hora_fim"),
         )
 
     elif tool_name == "listar_tarefas":

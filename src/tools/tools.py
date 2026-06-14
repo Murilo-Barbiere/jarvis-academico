@@ -13,6 +13,7 @@ from src.database.db_utils import (
     add_disciplina,
     remove_disciplina,
     get_disciplinas,
+    update_horario,
 )
 # ── Agenda ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,18 @@ def adicionar_na_agenda(tipo, titulo, descricao="", data=None,
         hora_inicio=hora_inicio,
         hora_fim=hora_fim,
         dia_semana=dia_semana,
+    )
+
+def alterar_horario(disciplina, dia_semana, novo_dia_semana=None, hora_inicio=None, hora_fim=None):
+    """
+    Altera o horário de uma disciplina.
+    """
+    return update_horario(
+        disciplina_nome=disciplina,
+        dia_semana_antigo=dia_semana,
+        novo_dia_semana=novo_dia_semana,
+        nova_hora_inicio=hora_inicio,
+        nova_hora_fim=hora_fim
     )
 
 # ── Tarefas ───────────────────────────────────────────────────────────────────

@@ -282,3 +282,68 @@ def get_disciplinas():
     conn.close()
 
     return [dict(r) for r in rows]
+
+def update_horario(disciplina_nome, dia_semana_antigo, novo_dia_semana=None, nova_hora_inicio=None, nova_hora_fim=None):
+    """
+    Altera o horário de uma disciplina existente.
+    """
+    if not disciplina_nome:
+        return {"status": "erro", "mensagem": "Nome da disciplina é obrigatório."}
+
+    if dia_semana_antigo is None:
+        return {"status": "erro", "mensagem": "Dia da semana antigo é obrigatório para identificar o horário."}
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Buscar ID da disciplina
+    cursor.execute('SELECT id FROM disciplinas WHERE LOWER(nome) = LOWER(?)', (disciplina_nome,))
+    row = cursor.fetchone()
+    if not row:
+        cursor.execute('SELECT nome FROM disciplinas ORDER BY nome')
+        disponiveis = [r['nome'] for r in cursor.fetchall()]
+        conn.close()
+        return {"status": "erro", "mensagem": f"Disciplina '{disciplina_nome}' não encontrada. Disponíveis: {disponiveis}"}
+
+    disciplina_id = row['id']
+
+    # Verificar se o horário antigo existe
+    cursor.execute('''
+        SELECT id FROM horarios 
+        WHERE disciplina_id = ? AND dia_semana = ?
+    ''', (disciplina_id, dia_semana_antigo))
+    horario_row = cursor.fetchone()
+    if not horario_row:
+        conn.close()
+        return {"status": "erro", "mensagem": f"Não foi encontrado um horário para '{disciplina_nome}' no dia {dia_semana_antigo}."}
+
+    horario_id = horario_row['id']
+
+    # Montar update dinâmico
+    updates = []
+    params = []
+    if novo_dia_semana is not None:
+        updates.append("dia_semana = ?")
+        params.append(novo_dia_semana)
+    if nova_hora_inicio:
+        updates.append("hora_inicio = ?")
+        params.append(nova_hora_inicio)
+    if nova_hora_fim:
+        updates.append("hora_fim = ?")
+        params.append(nova_hora_fim)
+
+    if not updates:
+        conn.close()
+        return {"status": "erro", "mensagem": "Nenhum dado para alterar foi fornecido."}
+
+    params.append(horario_id)
+    query = f"UPDATE horarios SET {', '.join(updates)} WHERE id = ?"
+
+    try:
+        cursor.execute(query, params)
+        conn.commit()
+        return {"status": "sucesso", "mensagem": f"Horário de '{disciplina_nome}' alterado com sucesso."}
+    except Exception as e:
+        return {"status": "erro", "mensagem": f"Erro ao atualizar horário: {str(e)}"}
+    finally:
+        conn.close()

@@ -71,9 +71,18 @@ provas, tarefas e material dos PDFs. Use quando o usuário pedir:
 - Como organizar o estudo
 - Uso: {"tool": "planejar_estudos", "arguments": {}}
 
+13. `alterar_horario`: Altera um horário de aula já existente de uma disciplina.
+   - Argumentos:
+     - "disciplina": [obrigatório] Nome da matéria.
+     - "dia_semana": [obrigatório] Dia atual do horário (0-Seg, 1-Ter, 2-Qua, 3-Qui, 4-Sex).
+     - "novo_dia_semana": [opcional] Novo dia (0-4).
+     - "hora_inicio": [opcional] Novo horário de início (HH:MM).
+     - "hora_fim": [opcional] Novo horário de fim (HH:MM).
+   - Uso: {"tool": "alterar_horario", "arguments": {"disciplina": "Cálculo", "dia_semana": 0, "hora_inicio": "10:00"}}
+
 ### LÓGICA DE SELEÇÃO
 - Dúvida sobre conteúdo (Ex: "O que é..."): Use `buscar_material_rag`.
-- Ação de organização (Ex: "Tenho prova...", "Marque uma aula..."): Use `adicionar_na_agenda`.
+- Ação de organização (Ex: "Tenho prova...", "Marque uma aula...", "Mude o horário de..."): Use `adicionar_na_agenda` ou `alterar_horario`.
 - Gestão de atividades (Ex: "Crie a tarefa...", "Terminei o trabalho..."): Use `adicionar_tarefa` ou `concluir_tarefa`.
 - Visualização Simples (Ex: "O que tenho pra hoje?", "Minha semana"): Use `consultar_agenda` ou `consultar_semana`.
 - Planejamento e Priorização (Ex: "Monte um plano de estudos", "O que devo priorizar?", "Resumo da minha situação"): Use `obter_resumo_academico`.
