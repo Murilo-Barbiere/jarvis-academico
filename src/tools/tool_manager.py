@@ -14,6 +14,15 @@ from src.tools.tools import (
     sair_da_materia,
     listar_materias,
     obter_resumo_academico,
+    remover_tarefa,
+    alterar_tarefa,
+    listar_tarefas_concluidas,
+    remover_prova,
+    remover_trabalho,
+    alterar_prova,
+    alterar_trabalho,
+    remover_horario_tool,
+    alterar_materia_tool,
 )
 from src.tools.study_planner import StudyPlannerService
 from src.utils.logger import registrar_tool

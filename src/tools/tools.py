@@ -17,6 +17,15 @@ from src.database.db_utils import (
     remove_disciplina,
     get_disciplinas,
     update_horario,
+    remove_task,
+    update_task,
+    get_completed_tasks,
+    remove_exam,
+    remove_assignment,
+    update_exam,
+    update_assignment,
+    remove_horario as remove_horario_db,
+    update_disciplina,
 )
 # ── Agenda ────────────────────────────────────────────────────────────────────
 
@@ -102,13 +111,13 @@ def concluir_tarefa(titulo):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "UPDATE tarefas SET status = 'concluida' WHERE titulo = ? AND status = 'pendente'",
+        "UPDATE tarefas SET status = 'concluido' WHERE titulo = ? AND status = 'pendente'",
         (titulo,)
     )
     conn.commit()
     if cursor.rowcount == 0:
         cursor.execute(
-            "UPDATE tarefas SET status = 'concluida' WHERE LOWER(titulo) = LOWER(?) AND status = 'pendente'",
+            "UPDATE tarefas SET status = 'concluido' WHERE LOWER(titulo) = LOWER(?) AND status = 'pendente'",
             (titulo,)
         )
         conn.commit()
