@@ -1,24 +1,37 @@
+
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import json
-from src.rag.chunker import preparar_documentos
-from src.rag.loader import ler_pdfs
-from src.llm.GammaAgente import get_agent
-from src.llm.query_rewriter import QueryRewriterService
-from src.config.setting import MODEL_NAME, PDF_PATH, JARVIS_QUERY_REWRITER_ENABLED, VECTOR_STORE_PATH
-from src.rag.VetorStore import VetorStore
-from src.utils.logger import configurar_logger
-from src.tools.tool_manager import executar_tool
 
 def main():
+    from src.utils.logger import configurar_logger
     logger = configurar_logger()
     logger.info("Aplicação JARVIS Acadêmico iniciada")
 
-    # Inicialização do Agente (Stateful)
-    jarvis = get_agent()
-    rewriter = QueryRewriterService()
+    print("DEBUG: Importando componentes...")
+    from src.llm.GammaAgente import get_agent
+    from src.llm.query_rewriter import QueryRewriterService
+    from src.rag.VetorStore import VetorStore
+    from src.config.setting import MODEL_NAME, PDF_PATH, JARVIS_QUERY_REWRITER_ENABLED, VECTOR_STORE_PATH
+    from src.rag.chunker import preparar_documentos
+    from src.rag.loader import ler_pdfs
+    from src.tools.tool_manager import executar_tool
+    print("DEBUG: Componentes importados")
 
-    # Preparação do RAG
-    vetor_store = VetorStore(MODEL_NAME)
+    print("DEBUG: Inicializando Agente...")
+    jarvis = get_agent()
+    print("DEBUG: Agente OK")
     
+    print("DEBUG: Inicializando Rewriter...")
+    rewriter = QueryRewriterService()
+    print("DEBUG: Rewriter OK")
+
+    print("DEBUG: Inicializando VetorStore...")
+    vetor_store = VetorStore(MODEL_NAME)
+    print("DEBUG: VetorStore OK")
+    
+    print("DEBUG: Carregando índice...")
     if not vetor_store.carregar(VECTOR_STORE_PATH):
         logger.info("Índice não encontrado ou inválido. Reconstruindo...")
         documentos = ler_pdfs(PDF_PATH)
@@ -80,7 +93,6 @@ def main():
             contexto = "Nenhuma informação extra necessária além do histórico da conversa."
 
         # 3. Geração da Resposta Final (com síntese e atualização da memória)
-        # Usamos a query original para a memória e resposta final para manter naturalidade
         if nome_tool == "planejar_estudos":
             resposta = jarvis.gerar_plano_estudos(query, contexto)
         else:
@@ -89,4 +101,9 @@ def main():
         print(f"\nJARVIS: {resposta}")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        print(f"CRITICAL ERROR: {e}")
+        traceback.print_exc()

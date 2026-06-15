@@ -17,7 +17,18 @@ from src.database.db_utils import (
     remove_disciplina,
     get_disciplinas,
     update_horario,
+    # ── Adicionadas (eram referenciadas mas não importadas) ─────────────────
+    get_completed_tasks,
+    remove_task,
+    update_task,
+    remove_exam,
+    update_exam,
+    remove_assignment,
+    update_assignment,
+    remove_horario,
+    update_disciplina,
 )
+
 # ── Agenda ────────────────────────────────────────────────────────────────────
 
 def consultar_agenda():
@@ -50,15 +61,13 @@ def adicionar_na_agenda(tipo, titulo, descricao="", data=None,
     )
 
 def alterar_horario(disciplina, dia_semana, novo_dia_semana=None, hora_inicio=None, hora_fim=None):
-    """
-    Altera o horário de uma disciplina.
-    """
+    """Altera o horário de uma disciplina."""
     return update_horario(
         disciplina_nome=disciplina,
         dia_semana_antigo=dia_semana,
         novo_dia_semana=novo_dia_semana,
         nova_hora_inicio=hora_inicio,
-        nova_hora_fim=hora_fim
+        nova_hora_fim=hora_fim,
     )
 
 # ── Tarefas ───────────────────────────────────────────────────────────────────
@@ -123,11 +132,7 @@ def concluir_tarefa(titulo):
     return {"status": "sucesso", "mensagem": f"Tarefa '{titulo}' concluída."}
 
 def adicionar_materia(nome, professor="", sala=""):
-    return add_disciplina(
-        nome=nome,
-        professor=professor,
-        sala=sala
-    )
+    return add_disciplina(nome=nome, professor=professor, sala=sala)
 
 def sair_da_materia(nome):
     return remove_disciplina(nome)
@@ -144,10 +149,10 @@ def buscar_material_rag(vetor_store, pergunta):
 
 def obter_resumo_academico(materiais=None):
     """Consolida tarefas pendentes, provas e trabalhos nos próximos 30 dias e aulas de hoje."""
-    tarefas = get_pending_tasks()
-    provas = get_upcoming_exams(days=30)
+    tarefas   = get_pending_tasks()
+    provas    = get_upcoming_exams(days=30)
     trabalhos = get_upcoming_assignments(days=30)
-    agenda = get_classes_today()
+    agenda    = get_classes_today()
 
     return {
         "status": "sucesso",
@@ -155,10 +160,10 @@ def obter_resumo_academico(materiais=None):
         "provas_proximos_30_dias": provas,
         "trabalhos_proximos_30_dias": trabalhos,
         "agenda_hoje": agenda,
-        "materiais_disponiveis": materiais or []
+        "materiais_disponiveis": materiais or [],
     }
 
-# ── Novas Ferramentas de Gestão ──────────────────────────────────────────────
+# ── Gestão de Tarefas ─────────────────────────────────────────────────────────
 
 def remover_tarefa(titulo):
     return remove_task(titulo)
@@ -169,21 +174,26 @@ def alterar_tarefa(titulo, descricao=None, data_entrega=None):
 def listar_tarefas_concluidas():
     return get_completed_tasks()
 
+# ── Gestão de Provas ──────────────────────────────────────────────────────────
+
 def remover_prova(disciplina, data):
     return remove_exam(disciplina, data)
-
-def remover_trabalho(disciplina, data_entrega):
-    return remove_assignment(disciplina, data_entrega)
 
 def alterar_prova(disciplina, data_antiga, nova_data=None, nova_descricao=None):
     return update_exam(disciplina, data_antiga, nova_data, nova_descricao)
 
+# ── Gestão de Trabalhos ───────────────────────────────────────────────────────
+
+def remover_trabalho(disciplina, data_entrega):
+    return remove_assignment(disciplina, data_entrega)
+
 def alterar_trabalho(disciplina, data_antiga, nova_data=None, nova_descricao=None):
     return update_assignment(disciplina, data_antiga, nova_data, nova_descricao)
 
+# ── Gestão de Horários e Disciplinas ─────────────────────────────────────────
+
 def remover_horario_tool(disciplina, dia_semana, hora_inicio):
-    return remove_horario_db(disciplina, dia_semana, hora_inicio)
+    return remove_horario(disciplina, dia_semana, hora_inicio)
 
 def alterar_materia_tool(nome, professor=None, sala=None):
     return update_disciplina(nome, novo_professor=professor, nova_sala=sala)
-    

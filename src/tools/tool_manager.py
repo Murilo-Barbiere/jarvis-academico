@@ -13,6 +13,16 @@ from src.tools.tools import (
     sair_da_materia,
     listar_materias,
     obter_resumo_academico,
+    # ── Adicionadas (eram chamadas mas não importadas) ──────────────────────
+    remover_tarefa,
+    alterar_tarefa,
+    listar_tarefas_concluidas,
+    remover_prova,
+    alterar_prova,
+    remover_trabalho,
+    alterar_trabalho,
+    remover_horario_tool,
+    alterar_materia_tool,
 )
 from src.tools.study_planner import StudyPlannerService
 from src.utils.logger import registrar_tool
@@ -68,31 +78,6 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
     elif tool_name == "concluir_tarefa":
         resultado = concluir_tarefa(titulo=argumentos.get("titulo"))
 
-    elif tool_name == "buscar_material_rag":
-        pergunta = argumentos.get("pergunta") or argumentos.get("query") or "consulta vazia"
-        resultado = buscar_material_rag(vetor_store, pergunta)
-
-    elif tool_name == "adicionar_materia":
-        resultado = adicionar_materia(
-            nome       = argumentos.get("nome"),
-            professor  = argumentos.get("professor", ""),
-            sala       = argumentos.get("sala", ""),
-        )
-
-    elif tool_name == "sair_da_materia":
-        resultado = sair_da_materia(
-            nome = argumentos.get("nome")
-        )
-
-    elif tool_name == "listar_materias":
-        resultado = listar_materias()
-
-    elif tool_name == "obter_resumo_academico":
-        arquivos = []
-        if vetor_store and hasattr(vetor_store, 'metadados'):
-            arquivos = list(set([m['arquivo'] for m in vetor_store.metadados]))
-        resultado = obter_resumo_academico(materiais=arquivos)
-
     elif tool_name == "remover_tarefa":
         resultado = remover_tarefa(titulo=argumentos.get("titulo"))
 
@@ -105,6 +90,29 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
 
     elif tool_name == "listar_tarefas_concluidas":
         resultado = listar_tarefas_concluidas()
+
+    elif tool_name == "buscar_material_rag":
+        pergunta = argumentos.get("pergunta") or argumentos.get("query") or "consulta vazia"
+        resultado = buscar_material_rag(vetor_store, pergunta)
+
+    elif tool_name == "adicionar_materia":
+        resultado = adicionar_materia(
+            nome      = argumentos.get("nome"),
+            professor = argumentos.get("professor", ""),
+            sala      = argumentos.get("sala", ""),
+        )
+
+    elif tool_name == "sair_da_materia":
+        resultado = sair_da_materia(nome=argumentos.get("nome"))
+
+    elif tool_name == "listar_materias":
+        resultado = listar_materias()
+
+    elif tool_name == "obter_resumo_academico":
+        arquivos = []
+        if vetor_store and hasattr(vetor_store, 'metadados'):
+            arquivos = list(set([m['arquivo'] for m in vetor_store.metadados]))
+        resultado = obter_resumo_academico(materiais=arquivos)
 
     elif tool_name == "remover_prova":
         resultado = remover_prova(
@@ -158,6 +166,6 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
     registrar_tool(
         nome_ferramenta=tool_name,
         entrada=argumentos,
-        saida=resultado
+        saida=resultado,
     )
     return resultado
