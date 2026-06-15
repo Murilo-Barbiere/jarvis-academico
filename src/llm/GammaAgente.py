@@ -46,6 +46,9 @@ class JarvisAgent:
         self.memory = ChatMemoryManager(max_messages=10)
         self.system_prompt = SYSTEM_PROMPT
 
+        self.modo_quiz = False;
+        self.contexto_quiz = "";
+
     def _get_messages_for_llm(self, user_query: Optional[str] = None, system_override: Optional[str] = None) -> list:
         """Constrói a lista de mensagens incluindo o prompt do sistema e o histórico."""
         agora = datetime.now()
@@ -77,7 +80,17 @@ class JarvisAgent:
         """
         Decide qual ferramenta utilizar com base no histórico e na query atual.
         """
-        messages = self._get_messages_for_llm(user_query)
+        system_override = None
+        if self.modo_quiz:
+            system_override = (
+                "Você é o JARVIS Acadêmico em MODO QUIZ.\n"
+                "Sua única tarefa agora é decidir se precisa de mais informações do RAG "
+                "para avaliar a resposta do usuário ou se já pode responder diretamente.\n"
+                "Se o usuário estiver respondendo ao quiz, você geralmente não precisa de ferramenta, "
+                "a menos que ele faça uma pergunta técnica específica."
+            )
+
+        messages = self._get_messages_for_llm(user_query, system_override=system_override)
         
         try:
             resposta = self.client.chat.completions.create(
@@ -99,11 +112,29 @@ class JarvisAgent:
         Gera a resposta final para o usuário utilizando o contexto obtido (RAG ou Tool).
         """
         # Prompt específico para síntese da resposta com contexto
-        system_sintese = (
-            "Você é o JARVIS Acadêmico. Responda o usuário de forma amigável "
-            "e objetiva, utilizando o contexto fornecido abaixo para embasar sua resposta.\n\n"
-            f"CONTEXTO ATUAL:\n{contexto}"
-        )
+        if self.modo_quiz:
+            contexto_combinado = f"CONTEXTO BASE DO QUIZ:\n{self.contexto_quiz}\n\nINFORMAÇÕES ADICIONAIS:\n{contexto}"
+            
+            system_sintese = (
+                "Você é o JARVIS Acadêmico, um tutor de IA especialista em Active Recall.\n"
+                "O usuário está respondendo a uma pergunta do quiz.\n\n"
+                "Sua resposta deve seguir OBRIGATORIAMENTE esta estrutura de Markdown:\n\n"
+                "### Avaliação\n"
+                "[Diga de forma direta se a resposta está Correta, Parcialmente Correta ou Incorreta e faça uma breve análise justificando baseado no contexto]\n\n"
+                "### Pontos Fracos / Lacunas de Conhecimento\n"
+                "[Se o usuário errou ou esqueceu algum detalhe importante do contexto, liste exatamente quais conceitos ou termos técnicos ele deixou passar. Se ele acertou tudo, elogie e diga que não há lacunas]\n\n"
+                "### Recomendação de Revisão\n"
+                "[Indique explicitamente quais tópicos, conceitos ou documentos específicos (mencione o nome do arquivo, ex: 'releia o material kurose-http.pdf') do contexto abaixo ele deve reler para fixar o conteúdo]\n\n"
+                "### Próxima Pergunta\n"
+                "[Formule a próxima pergunta desafiadora baseada no contexto do quiz para continuar o teste]\n\n"
+                f"CONTEXTO DO QUIZ:\n{contexto_combinado}"
+            )
+        else:
+            system_sintese = (
+                "Você é o JARVIS Acadêmico. Responda o usuário de forma amigável "
+                "e objetiva, utilizando o contexto fornecido abaixo para embasar sua resposta.\n\n"
+                f"CONTEXTO ATUAL:\n{contexto}"
+            )
         
         messages = self._get_messages_for_llm(user_query, system_override=system_sintese)
         
@@ -148,6 +179,50 @@ class JarvisAgent:
         except Exception as e:
             logger.error(f"Erro ao gerar plano de estudos: {e}")
             return self.gerar_resposta_final(user_query, contexto)
+
+    def iniciar_quiz(self, user_query: str, contexto: str) -> str:
+        """
+        Inicia um quiz interativo com o usuário baseado no contexto fornecido.
+        """
+        self.modo_quiz = True
+        self.contexto_quiz = contexto
+        
+        system_quiz_inicial = (
+            "Você é o JARVIS Acadêmico. O usuário quer iniciar um Quiz Interativo (Active Recall).\n"
+            "Com base estritamente no CONTEXTO RAG fornecido abaixo, formule a PRIMEIRA pergunta "
+            "desafiadora sobre o material para testar o conhecimento do usuário. "
+            "Não dê a resposta nem opções ainda, faça uma pergunta aberta!\n\n"
+            f"CONTEXTO DO MATERIAL:\n{contexto}"
+        )
+        
+        messages = self._get_messages_for_llm(user_query, system_override=system_quiz_inicial)
+        logger.info("MODO QUIZ: Utilizando system_quiz_inicial para formular a primeira pergunta.")
+        
+        try:
+            resposta = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=0.5
+            )
+            
+            conteudo_resposta = resposta.choices[0].message.content
+            
+            self.memory.add_message("user", user_query)
+            self.memory.add_message("assistant", conteudo_resposta)
+            
+            return conteudo_resposta
+        except Exception as e:
+            logger.error(f"Erro ao iniciar quiz: {e}")
+            return self.gerar_resposta_final(user_query, contexto)
+
+    def encerrar_quiz(self) -> str:
+        """
+        Finaliza o modo quiz e reseta o estado.
+        """
+        self.modo_quiz = False
+        self.contexto_quiz = ""
+        logger.info("MODO QUIZ: Encerrado pelo usuário.")
+        return "Modo Quiz finalizado! Como posso te ajudar agora?"
 
 # Mantendo compatibilidade com funções existentes se necessário,
 # mas encorajando o uso da classe JarvisAgent.

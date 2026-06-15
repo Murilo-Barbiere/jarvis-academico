@@ -1,3 +1,4 @@
+from src.rag.context_builder import gerar_contexto
 from src.tools.tools import (
     consultar_agenda,
     consultar_semana,
@@ -70,7 +71,8 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
 
     elif tool_name == "buscar_material_rag":
         pergunta = argumentos.get("pergunta") or argumentos.get("query") or "consulta vazia"
-        resultado = buscar_material_rag(vetor_store, pergunta)
+        raw_results = buscar_material_rag(vetor_store, pergunta)
+        resultado = gerar_contexto(raw_results)
 
     elif tool_name == "adicionar_materia":
         resultado = adicionar_materia(
@@ -151,6 +153,13 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
     elif tool_name == "planejar_estudos":
         planner = StudyPlannerService(vetor_store=vetor_store)
         resultado = planner.montar_contexto()
+
+    elif tool_name == "iniciar_quiz":
+        topico = argumentos.get("topico") or "estudo geral"
+        if vetor_store:
+            resultado = buscar_material_rag(vetor_store, topico)
+        else:
+            resultado = {"erro": "Vector store não disponível para gerar quiz."}
 
     else:
         resultado = {"erro": f"Ferramenta '{tool_name}' não encontrada."}
