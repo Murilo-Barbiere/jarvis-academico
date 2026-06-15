@@ -9,7 +9,6 @@ def main():
     logger = configurar_logger()
     logger.info("Aplicação JARVIS Acadêmico iniciada")
 
-    print("DEBUG: Importando componentes...")
     from src.llm.GammaAgente import get_agent
     from src.llm.query_rewriter import QueryRewriterService
     from src.rag.VetorStore import VetorStore
@@ -17,21 +16,13 @@ def main():
     from src.rag.chunker import preparar_documentos
     from src.rag.loader import ler_pdfs
     from src.tools.tool_manager import executar_tool
-    print("DEBUG: Componentes importados")
 
-    print("DEBUG: Inicializando Agente...")
     jarvis = get_agent()
-    print("DEBUG: Agente OK")
     
-    print("DEBUG: Inicializando Rewriter...")
     rewriter = QueryRewriterService()
-    print("DEBUG: Rewriter OK")
 
-    print("DEBUG: Inicializando VetorStore...")
     vetor_store = VetorStore(MODEL_NAME)
-    print("DEBUG: VetorStore OK")
     
-    print("DEBUG: Carregando índice...")
     if not vetor_store.carregar(VECTOR_STORE_PATH):
         logger.info("Índice não encontrado ou inválido. Reconstruindo...")
         documentos = ler_pdfs(PDF_PATH)
