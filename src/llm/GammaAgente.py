@@ -76,9 +76,10 @@ class JarvisAgent:
             
         return messages
 
-    def decidir_tool(self, user_query: str) -> Optional[Dict[str, Any]]:
+    def decidir_tool(self, user_query: str) -> Dict[str, Any]:
         """
-        Decide qual ferramenta utilizar com base no histórico e na query atual.
+        Decide quais ferramentas utilizar com base no histórico e na query atual.
+        Sempre retorna um dict no formato {"tools": [...]}
         """
         system_override = None
         if self.modo_quiz:
@@ -101,11 +102,20 @@ class JarvisAgent:
             )
             
             conteudo = resposta.choices[0].message.content
-            return json.loads(conteudo)
+            plano = json.loads(conteudo)
+            
+            # Garante que o retorno sempre tenha a chave 'tools'
+            if "tools" not in plano:
+                # Fallback para o formato antigo se o LLM se enganar
+                if "tool" in plano:
+                    plano = {"tools": [{"tool": plano["tool"], "arguments": plano.get("arguments", {})}]}
+                else:
+                    plano = {"tools": []}
+            
+            return plano
         except Exception as e:
-            # Em caso de erro, podemos logar e retornar None para o fluxo seguir sem tool
             logger.error(f"Erro ao decidir tool: {str(e)}")
-            return None
+            return {"tools": []}
 
     def gerar_resposta_final(self, user_query: str, contexto: str) -> str:
         """
@@ -182,7 +192,7 @@ class JarvisAgent:
 
     def iniciar_quiz(self, user_query: str, contexto: str) -> str:
         """
-        Inicia um quiz interativo com o usuário baseado no contexto fornecido.
+        Inicia um quiz interativo with o usuário baseado no contexto fornecido.
         """
         self.modo_quiz = True
         self.contexto_quiz = contexto

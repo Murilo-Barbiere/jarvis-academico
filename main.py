@@ -62,33 +62,60 @@ def main():
         # 1. Agente decide o que fazer (Tool Calling com Histórico)
         plano = jarvis.decidir_tool(query_para_agente)
         
-        contexto = ""
-        nome_tool = plano.get("tool") if plano else "nenhuma"
+        lista_tools = plano.get("tools", [])
+        resultados_acumulados = []
+        
+        tool_especial = "nenhuma"
 
-        # 2. Execução da Tool ou Fluxo Direto
-        if nome_tool and nome_tool != "nenhuma":
-            argumentos = plano.get("arguments", {})
-            logger.info(f"Executando ferramenta: {nome_tool}")
-            
-            try:
-                # Caso especial para RAG que precisa do vetor_store
-                resultado = executar_tool(nome_tool, argumentos, vetor_store)
-                contexto = json.dumps(resultado, ensure_ascii=False, default=str)
-                logger.info("Ferramenta executada com sucesso")
-            except Exception as e:
-                logger.error(f"Erro na execução da tool: {e}")
-                contexto = f"Erro ao processar sua solicitação na ferramenta {nome_tool}: {e}"
+        # 2. Execução Sequencial das Tools com Resiliência
+        if lista_tools:
+            for item in lista_tools:
+                nome_tool = item.get("tool")
+                argumentos = item.get("arguments", {})
+                
+                if nome_tool == "nenhuma" or not nome_tool:
+                    continue
+                
+                logger.info(f"Executando ferramenta: {nome_tool}")
+                
+                try:
+                    # Executa a tool
+                    resultado = executar_tool(nome_tool, argumentos, vetor_store)
+                    resultados_acumulados.append({
+                        "tool": nome_tool,
+                        "status": "sucesso",
+                        "resultado": resultado
+                    })
+                    logger.info(f"Ferramenta {nome_tool} executada com sucesso")
+                    
+                    # Identifica tools que mudam o fluxo de resposta final
+                    # Quiz tem precedência sobre Plano de Estudos
+                    if nome_tool == "iniciar_quiz":
+                        tool_especial = "iniciar_quiz"
+                    elif nome_tool == "encerrar_quiz":
+                        tool_especial = "encerrar_quiz"
+                    elif nome_tool == "planejar_estudos" and tool_especial not in ["iniciar_quiz", "encerrar_quiz"]:
+                        tool_especial = "planejar_estudos"
+
+                except Exception as e:
+                    logger.error(f"Erro na execução da tool {nome_tool}: {e}")
+                    resultados_acumulados.append({
+                        "tool": nome_tool,
+                        "status": "erro",
+                        "mensagem": str(e)
+                    })
+
+            contexto = json.dumps(resultados_acumulados, ensure_ascii=False, default=str)
         else:
-            # Se 'nenhuma' tool foi escolhida, o contexto é vazio (ou o histórico basta)
             logger.info("Nenhuma ferramenta necessária. Usando apenas histórico/conhecimento.")
             contexto = "Nenhuma informação extra necessária além do histórico da conversa."
 
         # 3. Geração da Resposta Final (com síntese e atualização da memória)
-        if nome_tool == "planejar_estudos":
+        if tool_especial == "planejar_estudos":
             resposta = jarvis.gerar_plano_estudos(query, contexto)
-        elif nome_tool == "iniciar_quiz":
+        elif tool_especial == "iniciar_quiz":
             resposta = jarvis.iniciar_quiz(query, contexto)
-        elif nome_tool == "encerrar_quiz":
+        elif tool_especial == "encerrar_quiz":
             resposta = jarvis.encerrar_quiz()
         else:
             resposta = jarvis.gerar_resposta_final(query, contexto)

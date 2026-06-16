@@ -32,13 +32,15 @@ def test_quiz_completo():
         
         # 1. Teste sem Rewriter
         decisao_direta = agent.decidir_tool(query)
-        print(f"  [Direto]   Tool: {decisao_direta.get('tool')} | Args: {decisao_direta.get('arguments')}")
+        tools_direto = decisao_direta.get("tools", [])
+        print(f"  [Direto]   Tools: {[t.get('tool') for t in tools_direto]}")
         
         # 2. Teste com Rewriter
         query_reformulada = rewriter.rewrite(query)
         decisao_rewriter = agent.decidir_tool(query_reformulada)
+        tools_rewriter = decisao_rewriter.get("tools", [])
         print(f"  [Rewriter] Query: '{query_reformulada}'")
-        print(f"  [Rewriter] Tool: {decisao_rewriter.get('tool')} | Args: {decisao_rewriter.get('arguments')}")
+        print(f"  [Rewriter] Tools: {[t.get('tool') for t in tools_rewriter]}")
         
         print("-" * 50)
 
