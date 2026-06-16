@@ -7,12 +7,10 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.llm.GammaAgente import get_agent
-from src.llm.query_rewriter import QueryRewriterService
 
 def test_quiz_completo():
     load_dotenv()
     agent = get_agent()
-    rewriter = QueryRewriterService()
     
     queries = [
         "Me faça um quiz sobre DNS",
@@ -30,17 +28,10 @@ def test_quiz_completo():
     for query in queries:
         print(f"USUÁRIO: '{query}'")
         
-        # 1. Teste sem Rewriter
-        decisao_direta = agent.decidir_tool(query)
-        tools_direto = decisao_direta.get("tools", [])
-        print(f"  [Direto]   Tools: {[t.get('tool') for t in tools_direto]}")
-        
-        # 2. Teste com Rewriter
-        query_reformulada = rewriter.rewrite(query)
-        decisao_rewriter = agent.decidir_tool(query_reformulada)
-        tools_rewriter = decisao_rewriter.get("tools", [])
-        print(f"  [Rewriter] Query: '{query_reformulada}'")
-        print(f"  [Rewriter] Tools: {[t.get('tool') for t in tools_rewriter]}")
+        # Teste de decisão de tool
+        decisao = agent.decidir_tool(query)
+        tools = decisao.get("tools", [])
+        print(f"  Tools: {[t.get('tool') for t in tools]}")
         
         print("-" * 50)
 

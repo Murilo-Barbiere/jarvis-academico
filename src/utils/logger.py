@@ -51,19 +51,5 @@ def registrar_tool(nome_ferramenta, entrada, saida):
         )
     )
 
-def registrar_query_rewriter(original, reformulada, tempo):
-    """Registra a reformulação da query em formato JSON no log."""
-    logger.info(
-        json.dumps(
-            {
-                "tipo": "query_rewriting",
-                "original": original,
-                "reformulada": reformulada,
-                "tempo_segundos": round(tempo, 4)
-            },
-            ensure_ascii=False
-        )
-    )
-
 def configurar_logger():
     return logger

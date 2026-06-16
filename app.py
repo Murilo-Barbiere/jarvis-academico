@@ -18,13 +18,11 @@ import streamlit as st
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.config.setting import (
-    JARVIS_QUERY_REWRITER_ENABLED,
     MODEL_NAME,
     PDF_PATH,
     VECTOR_STORE_PATH,
 )
 from src.llm.GammaAgente import JarvisAgent
-from src.llm.query_rewriter import QueryRewriterService
 from src.rag.VetorStore import VetorStore
 from src.rag.chunker import preparar_documentos
 from src.rag.loader import ler_pdfs
@@ -66,14 +64,6 @@ st.markdown(
         border-radius: 6px;
         margin-top: 0.35rem;
         margin-bottom: 0.1rem;
-    }
-
-    /* Caption da query reescrita */
-    .rewritten-query {
-        color: #7eb8f7;
-        font-size: 0.82rem;
-        font-style: italic;
-        margin-bottom: 4px;
     }
 
     /* Caixa de boas-vindas */
@@ -118,12 +108,6 @@ def _carregar_vetor_store() -> "VetorStore | None":
     vs.salvar(VECTOR_STORE_PATH)
     logger.info(f"[UI] Vector Store criado — {len(chunks)} chunks")
     return vs
-
-
-@st.cache_resource(show_spinner=False)
-def _carregar_rewriter() -> QueryRewriterService:
-    """Instancia o Query Rewriter (stateless, pode ser compartilhado)."""
-    return QueryRewriterService()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -185,7 +169,7 @@ _ACOES_RAPIDAS: list[tuple[str, str]] = [
 
 _EXEMPLOS: list[str] = [
     "Quais aulas tenho hoje?",
-    "Adiciona uma prova de Redes para amanhã às 19h",
+    "Adiciona uma prova de Redes para amãna às 19h",
     "O que é uma árvore binária de busca?",
     "Como funciona o protocolo DNS?",
     "Cria a tarefa 'Estudar para P1' para sexta-feira",
@@ -213,24 +197,18 @@ _DIAS_SEMANA = [
 def _processar_mensagem(
     query: str,
     vetor_store: "VetorStore | None",
-    rewriter: QueryRewriterService,
-    use_rewriter: bool,
 ) -> dict:
     """
-    Pipeline: Query Rewriting → Tool Decision → Tool Execution → Response.
+    Pipeline: Tool Decision → Tool Execution → Response.
 
     Returns
     -------
     dict com chaves:
         resposta        : str
         tools_info      : list | None
-        query_reescrita : str | None   (None se igual à original)
     """
-    # 1 ── Query Rewriting ─────────────────────────────────────────────────────
-    query_agente = rewriter.rewrite(query) if use_rewriter else query
-
-    # 2 ── Decisão de Tool ─────────────────────────────────────────────────────
-    plano = st.session_state.jarvis.decidir_tool(query_agente)
+    # 1 ── Decisão de Tool ─────────────────────────────────────────────────────
+    plano = st.session_state.jarvis.decidir_tool(query)
     lista_tools = plano.get("tools", [])
 
     tools_info = []
@@ -311,7 +289,6 @@ def _processar_mensagem(
     return {
         "resposta": resposta,
         "tools_info": tools_info if tools_info else None,
-        "query_reescrita": query_agente if query_agente != query else None,
     }
 
 
@@ -354,9 +331,6 @@ def _ui_render_messages() -> None:
         with st.chat_message(msg["role"], avatar=avatar):
             # Metadados do assistente (aparecem antes do texto)
             if msg["role"] == "assistant":
-                if msg.get("query_reescrita"):
-                    st.caption(f'🔄 *Query otimizada: "{msg["query_reescrita"]}"*')
-                
                 # Suporte a múltiplas ferramentas (nova lógica)
                 if msg.get("tools_info"):
                     for t_info in msg["tools_info"]:
@@ -368,13 +342,13 @@ def _ui_render_messages() -> None:
             st.markdown(msg["content"])
 
 
-def _ui_sidebar(vetor_store: "VetorStore | None", rewriter_default: bool) -> tuple:
+def _ui_sidebar(vetor_store: "VetorStore | None") -> str | None:
     """
     Renderiza a barra lateral.
 
     Returns
     -------
-    (prompt_rapido: str | None, use_rewriter: bool)
+    prompt_rapido: str | None
     """
     prompt_rapido: str | None = None
 
@@ -405,20 +379,6 @@ def _ui_sidebar(vetor_store: "VetorStore | None", rewriter_default: bool) -> tup
 
         st.divider()
 
-        # ── Configurações ──────────────────────────────────
-        st.subheader("⚙️ Configurações")
-        use_rewriter = st.toggle(
-            "Query Rewriter",
-            value=rewriter_default,
-            help=(
-                "Quando ativo, o JARVIS reformula automaticamente "
-                "sua pergunta antes de processar, melhorando a precisão "
-                "das buscas no RAG e a seleção das ferramentas."
-            ),
-        )
-
-        st.divider()
-
         # ── Limpar Histórico ───────────────────────────────
         if st.button(
             "🗑️ Limpar Histórico",
@@ -437,7 +397,7 @@ def _ui_sidebar(vetor_store: "VetorStore | None", rewriter_default: bool) -> tup
             for ex in _EXEMPLOS:
                 st.caption(f"• *{ex}*")
 
-    return prompt_rapido, use_rewriter
+    return prompt_rapido
 
 
 def _ui_welcome() -> None:
@@ -501,10 +461,9 @@ def main() -> None:
     # Carrega recursos pesados (cacheados — rápido a partir da 2ª execução)
     with st.spinner("🔄 Inicializando JARVIS…"):
         vetor_store = _carregar_vetor_store()
-        rewriter = _carregar_rewriter()
 
-    # Sidebar — retorna prompt rápido e configuração do rewriter
-    prompt_rapido, use_rewriter = _ui_sidebar(vetor_store, JARVIS_QUERY_REWRITER_ENABLED)
+    # Sidebar — retorna prompt rápido
+    prompt_rapido = _ui_sidebar(vetor_store)
 
     # Cabeçalho
     _ui_header()
@@ -534,7 +493,6 @@ def main() -> None:
         # 2. Processa e exibe resposta do JARVIS
         resposta = ""
         tools_info = None
-        query_reescrita = None
 
         with st.chat_message("assistant", avatar="🎓"):
             with st.spinner("JARVIS está pensando…"):
@@ -542,17 +500,11 @@ def main() -> None:
                     resultado = _processar_mensagem(
                         query=prompt,
                         vetor_store=vetor_store,
-                        rewriter=rewriter,
-                        use_rewriter=use_rewriter,
                     )
                     resposta = resultado["resposta"]
                     tools_info = resultado["tools_info"]
-                    query_reescrita = resultado["query_reescrita"]
 
                     # Metadados antes da resposta
-                    if query_reescrita:
-                        st.caption(f'🔄 *Query otimizada: "{query_reescrita}"*')
-                    
                     if tools_info:
                         for t_info in tools_info:
                             _ui_tool_expander(t_info)
@@ -569,7 +521,6 @@ def main() -> None:
                 "role": "assistant",
                 "content": resposta,
                 "tools_info": tools_info,
-                "query_reescrita": query_reescrita,
             }
         )
 

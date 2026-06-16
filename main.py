@@ -10,17 +10,14 @@ def main():
     logger.info("Aplicação JARVIS Acadêmico iniciada")
 
     from src.llm.GammaAgente import get_agent
-    from src.llm.query_rewriter import QueryRewriterService
     from src.rag.VetorStore import VetorStore
-    from src.config.setting import MODEL_NAME, PDF_PATH, JARVIS_QUERY_REWRITER_ENABLED, VECTOR_STORE_PATH
+    from src.config.setting import MODEL_NAME, PDF_PATH, VECTOR_STORE_PATH
     from src.rag.chunker import preparar_documentos
     from src.rag.loader import ler_pdfs
     from src.tools.tool_manager import executar_tool
 
     jarvis = get_agent()
     
-    rewriter = QueryRewriterService()
-
     vetor_store = VetorStore(MODEL_NAME)
     
     if not vetor_store.carregar(VECTOR_STORE_PATH):
@@ -54,13 +51,8 @@ def main():
 
         logger.info(f"Processando query: {query}")
 
-        # Camada de Query Rewriting
-        query_para_agente = query
-        if JARVIS_QUERY_REWRITER_ENABLED:
-            query_para_agente = rewriter.rewrite(query)
-
         # 1. Agente decide o que fazer (Tool Calling com Histórico)
-        plano = jarvis.decidir_tool(query_para_agente)
+        plano = jarvis.decidir_tool(query)
         
         lista_tools = plano.get("tools", [])
         resultados_acumulados = []

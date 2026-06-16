@@ -9,6 +9,3 @@ CHUNK_OVERLAP = 100
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 VECTOR_STORE_PATH = os.getenv("VECTOR_STORE_PATH", "db")
-
-# Configurações do Query Rewriter
-JARVIS_QUERY_REWRITER_ENABLED = True

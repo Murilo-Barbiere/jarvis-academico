@@ -136,14 +136,11 @@ Digite `/sair` para encerrar.
       Usuário
          │
          ▼
-      main.py
+      main.py / app.py
          │
-         ▼
-  QueryRewriterService  (Otimização da Pergunta)
-         │
-         ├─── GammaAgente.decidir_tool()   ←── SYSTEM_PROMPT (tool calling via JSON)
+         ├─── GammaAgente.decidir_tool()   ←── SYSTEM_PROMPT (multi-tool calling via JSON)
          │         │
-         │    Tool chamada?
+         │    Tools chamadas?
          │         │
          │    Sim ─┴─ Não
          │    │         │
@@ -156,7 +153,7 @@ Digite `/sair` para encerrar.
          └────┴───────────────┘
               │
               ▼
-   GammaAgente.gerar_resposta_final()
+   GammaAgente.gerar_resposta_final() / Especializada
               │
               ▼
            Resposta
@@ -164,32 +161,9 @@ Digite `/sair` para encerrar.
 
 O fluxo principal funciona em três etapas:
 
-1. **Query Rewriting:** A pergunta original é reformulada por um serviço especializado para torná-la mais clara e específica, melhorando a precisão das etapas seguintes.
-2. **Decisão de tool:** O LLM analisa a pergunta **otimizada** e retorna um JSON indicando qual ferramenta usar (ou nenhuma).
-3. **Resposta final:** Com o contexto (resultado da tool ou chunks do RAG), o LLM gera a resposta em linguagem natural baseada na intenção original do usuário.
-
----
-
-## 🔍 Camada de Query Rewriting
-
-Implementada via `QueryRewriterService`, esta camada utiliza o LLM para transformar a entrada do usuário antes do processamento principal.
-
-### Objetivos e Benefícios
-*   **Melhoria no RAG:** Termos vagos ou abreviações são expandidos, facilitando a busca vetorial (ex: "arv bin" vira "O que é uma árvore binária de busca?").
-*   **Precisão no Tool Calling:** Ajuda o agente a identificar melhor quais parâmetros são necessários para cada ferramenta.
-*   **Desambiguação:** Clarifica a intenção do usuário sem adicionar informações externas.
-
-### Exemplos de Transformação
-
-| Entrada Original | Saída Reformulada | Impacto Esperado |
-|---|---|---|
-| "provas semana" | "Quais são as provas agendadas para os próximos 7 dias?" | Melhor seleção da tool `consultar_agenda`. |
-| "o que é dns?" | "Explique o funcionamento e a definição do protocolo DNS (Domain Name System)." | Melhor recuperação de chunks no RAG. |
-| "add tarefa redes amanhã" | "Adicionar uma nova tarefa sobre a disciplina de Redes com data de entrega para amanhã." | Preenchimento correto dos argumentos da tool. |
-
-### Configuração
-O recurso pode ser habilitado ou desabilitado no arquivo `src/config/setting.py`:
-`JARVIS_QUERY_REWRITER_ENABLED = True`
+1. **Decisão de tool:** O LLM analisa a pergunta e retorna um JSON indicando quais ferramentas usar (ou nenhuma). O JARVIS suporta a execução de múltiplas ferramentas em sequência.
+2. **Execução de tools / RAG:** As ferramentas solicitadas são executadas ou uma busca semântica é realizada no conhecimento indexado (RAG).
+3. **Resposta final:** Com o contexto acumulado, o LLM gera a resposta em linguagem natural.
 
 ---
 
