@@ -223,7 +223,7 @@ def _processar_mensagem(
     -------
     dict com chaves:
         resposta        : str
-        tool_info       : dict | None
+        tools_info      : list | None
         query_reescrita : str | None   (None se igual à original)
     """
     # 1 ── Query Rewriting ─────────────────────────────────────────────────────
@@ -231,54 +231,86 @@ def _processar_mensagem(
 
     # 2 ── Decisão de Tool ─────────────────────────────────────────────────────
     plano = st.session_state.jarvis.decidir_tool(query_agente)
-    nome_tool = plano.get("tool") if plano else "nenhuma"
+    lista_tools = plano.get("tools", [])
 
-    tool_info = None
-    contexto = ""
+    tools_info = []
+    resultados_acumulados = []
+    tool_especial = "nenhuma"
 
-    # 3 ── Execução da Tool ────────────────────────────────────────────────────
-    if nome_tool and nome_tool != "nenhuma":
-        argumentos = plano.get("arguments", {})
+    # 3 ── Execução Sequencial das Tools ───────────────────────────────────────
+    if lista_tools:
+        for item in lista_tools:
+            nome_tool = item.get("tool")
+            argumentos = item.get("arguments", {})
 
-        # Verifica se RAG está disponível antes de chamar busca semântica
-        if nome_tool == "buscar_material_rag" and vetor_store is None:
-            contexto = (
-                "O módulo de busca em PDFs está indisponível: "
-                "nenhum arquivo PDF foi encontrado na pasta configurada."
-            )
-            tool_info = {
-                "tool": nome_tool,
-                "arguments": argumentos,
-                "result": {"aviso": "RAG indisponível — sem PDFs indexados."},
-            }
-        else:
-            try:
-                resultado = executar_tool(nome_tool, argumentos, vetor_store)
-                contexto = json.dumps(resultado, ensure_ascii=False, default=str)
-                tool_info = {
+            if not nome_tool or nome_tool == "nenhuma":
+                continue
+
+            # Verifica se RAG está disponível antes de chamar busca semântica
+            if nome_tool == "buscar_material_rag" and vetor_store is None:
+                resultado = {"aviso": "RAG indisponível — sem PDFs indexados."}
+                resultados_acumulados.append({
+                    "tool": nome_tool,
+                    "status": "aviso",
+                    "resultado": resultado
+                })
+                tools_info.append({
                     "tool": nome_tool,
                     "arguments": argumentos,
                     "result": resultado,
-                }
-            except Exception as exc:
-                contexto = f"Erro ao executar a ferramenta '{nome_tool}': {exc}"
-                tool_info = {
-                    "tool": nome_tool,
-                    "arguments": argumentos,
-                    "result": {"erro": str(exc)},
-                }
+                })
+            else:
+                try:
+                    resultado = executar_tool(nome_tool, argumentos, vetor_store)
+                    resultados_acumulados.append({
+                        "tool": nome_tool,
+                        "status": "sucesso",
+                        "resultado": resultado
+                    })
+                    tools_info.append({
+                        "tool": nome_tool,
+                        "arguments": argumentos,
+                        "result": resultado,
+                    })
+
+                    # Identifica tools que mudam o fluxo de resposta final
+                    if nome_tool == "iniciar_quiz":
+                        tool_especial = "iniciar_quiz"
+                    elif nome_tool == "encerrar_quiz":
+                        tool_especial = "encerrar_quiz"
+                    elif nome_tool == "planejar_estudos" and tool_especial not in ["iniciar_quiz", "encerrar_quiz"]:
+                        tool_especial = "planejar_estudos"
+
+                except Exception as exc:
+                    resultado = {"erro": str(exc)}
+                    resultados_acumulados.append({
+                        "tool": nome_tool,
+                        "status": "erro",
+                        "mensagem": str(exc)
+                    })
+                    tools_info.append({
+                        "tool": nome_tool,
+                        "arguments": argumentos,
+                        "result": resultado,
+                    })
+        
+        contexto = json.dumps(resultados_acumulados, ensure_ascii=False, default=str)
     else:
         contexto = "Nenhuma informação extra necessária além do histórico da conversa."
 
-    # 4 ── Geração da Resposta ─────────────────────────────────────────────────
-    if nome_tool == "planejar_estudos":
+    # 4 ── Geração da Resposta Final ───────────────────────────────────────────
+    if tool_especial == "planejar_estudos":
         resposta = st.session_state.jarvis.gerar_plano_estudos(query, contexto)
+    elif tool_especial == "iniciar_quiz":
+        resposta = st.session_state.jarvis.iniciar_quiz(query, contexto)
+    elif tool_especial == "encerrar_quiz":
+        resposta = st.session_state.jarvis.encerrar_quiz()
     else:
         resposta = st.session_state.jarvis.gerar_resposta_final(query, contexto)
 
     return {
         "resposta": resposta,
-        "tool_info": tool_info,
+        "tools_info": tools_info if tools_info else None,
         "query_reescrita": query_agente if query_agente != query else None,
     }
 
@@ -324,8 +356,15 @@ def _ui_render_messages() -> None:
             if msg["role"] == "assistant":
                 if msg.get("query_reescrita"):
                     st.caption(f'🔄 *Query otimizada: "{msg["query_reescrita"]}"*')
-                if msg.get("tool_info"):
+                
+                # Suporte a múltiplas ferramentas (nova lógica)
+                if msg.get("tools_info"):
+                    for t_info in msg["tools_info"]:
+                        _ui_tool_expander(t_info)
+                # Fallback para histórico antigo com uma só ferramenta
+                elif msg.get("tool_info"):
                     _ui_tool_expander(msg["tool_info"])
+                    
             st.markdown(msg["content"])
 
 
@@ -494,7 +533,7 @@ def main() -> None:
 
         # 2. Processa e exibe resposta do JARVIS
         resposta = ""
-        tool_info = None
+        tools_info = None
         query_reescrita = None
 
         with st.chat_message("assistant", avatar="🎓"):
@@ -507,14 +546,16 @@ def main() -> None:
                         use_rewriter=use_rewriter,
                     )
                     resposta = resultado["resposta"]
-                    tool_info = resultado["tool_info"]
+                    tools_info = resultado["tools_info"]
                     query_reescrita = resultado["query_reescrita"]
 
                     # Metadados antes da resposta
                     if query_reescrita:
                         st.caption(f'🔄 *Query otimizada: "{query_reescrita}"*')
-                    if tool_info:
-                        _ui_tool_expander(tool_info)
+                    
+                    if tools_info:
+                        for t_info in tools_info:
+                            _ui_tool_expander(t_info)
 
                     st.markdown(resposta)
 
@@ -527,7 +568,7 @@ def main() -> None:
             {
                 "role": "assistant",
                 "content": resposta,
-                "tool_info": tool_info,
+                "tools_info": tools_info,
                 "query_reescrita": query_reescrita,
             }
         )
