@@ -1,7 +1,7 @@
 """
-app.py — JARVIS Acadêmico · Interface Streamlit
+interface.py — JARVIS Acadêmico · Interface Streamlit
 ────────────────────────────────────────────────
-Execute com : streamlit run app.py
+Execute com : streamlit run interface.py
 CLI (sem UI): python main.py
 """
 
@@ -469,6 +469,10 @@ def main() -> None:
     _ui_header()
     st.divider()
 
+    # Indicador de Modo Quiz
+    if st.session_state.jarvis.modo_quiz:
+        st.info("💡 **Modo quiz ativo**\n\nDigite `/sair quiz` para encerrar o modo quiz.")
+
     # Boas-vindas (somente sem histórico)
     if not st.session_state.messages:
         _ui_welcome()
@@ -485,6 +489,13 @@ def main() -> None:
 
     # ── Processamento ──────────────────────────────────────────────────────
     if prompt:
+        # Trata comando especial de sair do quiz
+        if prompt.lower() == "/sair quiz":
+            resposta = st.session_state.jarvis.encerrar_quiz()
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            st.session_state.messages.append({"role": "assistant", "content": resposta})
+            st.rerun()
+
         # 1. Exibe mensagem do usuário
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user", avatar="👤"):

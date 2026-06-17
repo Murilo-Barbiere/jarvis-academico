@@ -38,12 +38,20 @@ def main():
     print("Digite '/sair' para encerrar ou '/limpar' para resetar a memória.")
 
     while True:
+        if jarvis.modo_quiz:
+            print("\n[Modo quiz ativo]")
+            print("Digite '/sair quiz' para encerrar o modo quiz.")
+
         query = input("\nVocê: ")
 
         if query.lower() == "/sair":
             logger.info("Sistema encerrado pelo usuário")
             break
         
+        if query.lower() == "/sair quiz":
+            print(f"\nJARVIS: {jarvis.encerrar_quiz()}")
+            continue
+
         if query.lower() == "/limpar":
             jarvis.memory.clear()
             print("Histórico de conversa limpo!")
