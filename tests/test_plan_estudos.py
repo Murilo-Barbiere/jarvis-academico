@@ -19,15 +19,15 @@ def test_obter_resumo_academico_estrutura():
 def test_trigger_resumo_para_plano():
     pergunta = "Monte um plano de estudos para a prova de amanhã"
     resposta = decidir_tool(pergunta)
-    assert resposta["tool"] == "planejar_estudos"
+    assert any(t["tool"] == "planejar_estudos" for t in resposta["tools"])
 
 def test_trigger_resumo_para_prioridade():
     pergunta = "O que devo priorizar hoje?"
     resposta = decidir_tool(pergunta)
     # obter_resumo_academico é usado para visão geral e prioridades rápidas
-    assert resposta["tool"] == "obter_resumo_academico"
+    assert any(t["tool"] == "obter_resumo_academico" for t in resposta["tools"])
 
 def test_trigger_resumo_para_situacao_geral():
     pergunta = "Como está minha situação acadêmica?"
     resposta = decidir_tool(pergunta)
-    assert resposta["tool"] == "obter_resumo_academico"
+    assert any(t["tool"] == "obter_resumo_academico" for t in resposta["tools"])

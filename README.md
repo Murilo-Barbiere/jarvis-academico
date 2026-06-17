@@ -1,6 +1,6 @@
 # 🎓 JARVIS Acadêmico
 
-Um assistente inteligente para organização universitária que combina **RAG (Retrieval-Augmented Generation)** com **tool calling** para responder dúvidas acadêmicas, gerenciar tarefas, provas e horários.
+O JARVIS (Journaling & Academic Retrieval Virtual Intelligent System) é um **assistente acadêmico pessoal** que opera via linguagem natural. Ele combina a potência de modelos de linguagem (LLMs) com um banco de dados operacional e um sistema de RAG (Retrieval-Augmented Generation) para ser o cérebro da sua vida universitária.
 
 ---
 
@@ -8,45 +8,44 @@ Um assistente inteligente para organização universitária que combina **RAG (R
 
 ```
 jarvis-academico/
-├── main.py                          # Ponto de entrada da aplicação
-├── data/                            # PDFs do dataset acadêmico (10 arquivos)
+├── main.py                          # Ponto de entrada (Terminal)
+├── interface.py                     # Interface Web (Streamlit)
+├── data/                            # PDFs do dataset acadêmico
 ├── db/
-│   └── agenda.db                    # Banco de dados SQLite
+│   ├── agenda.db                    # Banco de dados SQLite
+│   ├── faiss.index                  # Índice vetorial persistido
+│   └── chunks_meta.pkl              # Metadados do RAG
 ├── logs/
 │   └── app.log                      # Logs da aplicação
 └── src/
     ├── config/
     │   └── setting.py               # Configurações e variáveis de ambiente
     ├── database/
-    │   ├── db_utils.py              # Funções de acesso ao banco de dados
-    │   ├── init_db.py               # Inicialização do schema do banco
-    │   └── seed_db.py               # Dados de exemplo para o banco
+    │   ├── db_utils.py              # CRUD e lógica de acesso ao banco
+    │   ├── init_db.py               # Inicialização do schema
+    │   └── seed_db.py               # Dados de exemplo
     ├── llm/
-    │   ├── GammaAgente.py           # Cliente LLM (perguntar + decidir tool)
-    │   └── SYSTEM_PROMPT.py         # Prompt do sistema com definição das tools
+    │   ├── GammaAgente.py           # Orquestrador (Memória + Tools + LLM)
+    │   ├── memory.py                # Gestão de memória de curto prazo
+    │   └── SYSTEM_PROMPT.py         # Catálogo de ferramentas e regras do agente
     ├── rag/
-    │   ├── chunker.py               # Divisão e limpeza de textos em chunks
-    │   ├── context_builder.py       # Montagem do contexto para o LLM
-    │   ├── loader.py                # Leitura e extração de texto dos PDFs
-    │   └── VetorStore.py            # Indexação e busca vetorial com FAISS
+    │   ├── chunker.py               # Processamento de texto em fragmentos
+    │   ├── context_builder.py       # Seleção e ranking de contexto
+    │   ├── loader.py                # Extração de texto de PDFs
+    │   └── VetorStore.py            # Busca vetorial e persistência FAISS
     ├── tools/
-    │   ├── tool_manager.py          # Roteador de execução das tools
-    │   └── tools.py                 # Implementação de cada ferramenta
+    │   ├── study_planner.py         # Serviço de geração de planos de estudo
+    │   ├── tool_manager.py          # Roteador de execução das ferramentas
+    │   └── tools.py                 # Implementação das funções de ferramenta
     └── utils/
-        └── logger.py                # Configuração de logging
+        └── logger.py                # Sistema de logging centralizado
 ```
 
 ---
 
 ## 🚀 Como Executar
 
-### 1. Pré-requisitos
-
-- Python 3.10+
-- Dependências instaladas (veja abaixo)
-- Uma chave de API compatível com OpenAI (ex: OpenRouter, Groq, etc.)
-
-### 2. Instalação
+### 1. Instalação
 
 ```bash
 git clone https://github.com/seu-usuario/jarvis-academico.git
@@ -54,192 +53,100 @@ cd jarvis-academico
 pip install -r requirements.txt
 ```
 
-### 3. Variáveis de Ambiente
+### 2. Configuração (.env)
 
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 API_KEY=sua_chave_aqui
-BASE_URL=https://openrouter.ai/api/v1   # ou outra base compatível
-MODEL=mistralai/mistral-7b-instruct     # ou outro modelo de sua preferência
+BASE_URL=https://openrouter.ai/api/v1
+MODEL=google/gemini-pro-1.5           # Recomendado para melhor raciocínio
 ```
 
-### 4. Inicializar o Banco de Dados
+### 3. Inicialização
 
 ```bash
+# Inicializar banco e dados de exemplo
 python -m src.database.init_db
-python -m src.database.seed_db   # opcional: carrega dados de exemplo
+python -m src.database.seed_db
+
+# Opcional: O sistema indexa os PDFs automaticamente na primeira execução
 ```
 
-### 5. Executar
+### 4. Escolha sua Interface
 
+**Terminal (CLI):**
 ```bash
 python main.py
 ```
+
+**Web (Streamlit):**
+```bash
+streamlit run interface.py
+```
+
+---
+
+## 🧠 Funcionalidades Principais
+
+### 1. RAG Acadêmico
+O JARVIS "lê" seus materiais didáticos (PDFs na pasta `/data`) e responde perguntas técnicas baseadas estritamente no conteúdo fornecido, citando fontes.
+
+### 2. Gestão de Agenda e Tarefas
+Integração total com banco de dados para gerenciar aulas, provas, trabalhos e tarefas pendentes através de linguagem natural.
+
+### 3. Modo Quiz (Active Recall) 🆕
+Diga *"Me faça um quiz sobre [tópico]"* e o JARVIS entrará em modo de teste interativo. Ele formulará perguntas baseadas no seu material, avaliará suas respostas e identificará lacunas de conhecimento.
+
+### 4. Planejador de Estudos Inteligente
+Ao pedir um plano de estudos, o JARVIS cruza seus dados de agenda (prazos próximos) com o conteúdo técnico dos PDFs para criar um cronograma priorizado e focado no que realmente importa.
+
+---
+
+## 🛠️ Catálogo de Ferramentas (26 Tools)
+
+O JARVIS utiliza **Multi-Tool Calling**, podendo acionar várias ferramentas para uma única frase do usuário.
+
+| Categoria | Principais Ferramentas |
+|---|---|
+| **Consulta** | `consultar_agenda`, `consultar_semana`, `listar_materias`, `obter_resumo_academico` |
+| **Escrita** | `adicionar_na_agenda`, `adicionar_tarefa`, `adicionar_materia` |
+| **Edição** | `alterar_tarefa`, `alterar_prova`, `alterar_trabalho`, `alterar_materia`, `alterar_horario` |
+| **Remoção** | `remover_tarefa`, `remover_prova`, `remover_trabalho`, `remover_horario`, `sair_da_materia` |
+| **Conhecimento** | `buscar_material_rag`, `planejar_estudos` |
+| **Interação** | `iniciar_quiz`, `encerrar_quiz`, `concluir_tarefa` |
 
 ---
 
 ## 🧪 Testes
 
-O projeto utiliza **pytest** para testes automatizados. Para rodar todos os testes:
-
 ```bash
 pytest
 ```
 
-Para rodar um arquivo os testes:
-
-```bash
- python -m pytest
-```
-
 ---
 
-## 💬 Como Usar
+## 🏗️ Arquitetura
 
-Após iniciar, o sistema entra em loop de perguntas. Digite sua pergunta em linguagem natural:
+O JARVIS utiliza um fluxo de **Raciocínio → Ação → Observação → Síntese**:
 
-```
-Pergunta: Quais aulas tenho hoje?
-Pergunta: Adiciona uma prova de Redes para amanhã
-Pergunta: Qual a diferença entre LSTM e GRU?
-Pergunta: Lista minhas tarefas pendentes
-Pergunta: /sair
-```
-
-Digite `/sair` para encerrar.
-
----
-
-## 🛠️ Ferramentas Disponíveis
-
-| Ferramenta | Descrição |
-|---|---|
-| `consultar_agenda` | Aulas de hoje + provas e trabalhos nos próximos 7 dias |
-| `consultar_semana` | Grade completa da semana (seg–sex) |
-| `adicionar_na_agenda` | Adiciona provas, trabalhos, tarefas ou horários recorrentes |
-| `listar_tarefas` | Lista tarefas pendentes |
-| `listar_trabalhos` | Lista todos os trabalhos cadastrados |
-| `listar_provas` | Lista todas as provas cadastradas |
-| `adicionar_tarefa` | Atalho rápido para criar tarefas |
-| `concluir_tarefa` | Marca uma tarefa como concluída |
-| `buscar_material_rag` | Busca semântica nos PDFs indexados |
-| `adicionar_materia` | Cadastra uma nova disciplina |
-| `sair_da_materia` | Remove uma disciplina (e seus horários/provas) |
-| `listar_materias` | Lista todas as disciplinas cadastradas |
-
----
-
-## 🧠 Arquitetura
-
-```
-      Usuário
-         │
-         ▼
-      main.py / app.py
-         │
-         ├─── GammaAgente.decidir_tool()   ←── SYSTEM_PROMPT (multi-tool calling via JSON)
-         │         │
-         │    Tools chamadas?
-         │         │
-         │    Sim ─┴─ Não
-         │    │         │
-         │    ▼         ▼
-         │ tool_manager  VetorStore.buscar()
-         │    │               │
-         │    ▼               ▼
-         │  tools.py     context_builder
-         │    │               │
-         └────┴───────────────┘
-              │
-              ▼
-   GammaAgente.gerar_resposta_final() / Especializada
-              │
-              ▼
-           Resposta
-```
-
-O fluxo principal funciona em três etapas:
-
-1. **Decisão de tool:** O LLM analisa a pergunta e retorna um JSON indicando quais ferramentas usar (ou nenhuma). O JARVIS suporta a execução de múltiplas ferramentas em sequência.
-2. **Execução de tools / RAG:** As ferramentas solicitadas são executadas ou uma busca semântica é realizada no conhecimento indexado (RAG).
-3. **Resposta final:** Com o contexto acumulado, o LLM gera a resposta em linguagem natural.
-
----
-
-## 🗄️ Banco de Dados
-
-O SQLite (`db/agenda.db`) contém 4 tabelas:
-
-- **disciplinas** — nome, professor, sala
-- **horarios** — dia da semana, hora início/fim, vínculo com disciplina
-- **provas** — data, descrição, vínculo com disciplina
-- **tarefas** — título, descrição, data de entrega, status, prioridade
-
----
-
-## 📦 Principais Dependências
-
-| Pacote | Uso |
-|---|---|
-| `openai` | Cliente para APIs compatíveis com OpenAI |
-| `sentence-transformers` | Geração de embeddings (`all-MiniLM-L6-v2`) |
-| `faiss-cpu` | Indexação e busca vetorial |
-| `langchain-text-splitters` | Divisão de textos em chunks |
-| `pymupdf` (`fitz`) | Extração de texto de PDFs |
-| `python-dotenv` | Carregamento de variáveis de ambiente |
-
----
-
-## ⚙️ Configurações (`setting.py`)
-
-| Variável | Padrão | Descrição |
-|---|---|---|
-| `PDF_PATH` | `data` | Pasta com os PDFs do dataset |
-| `DB_PATH` | `db/agenda.db` | Caminho do banco SQLite |
-| `CHUNK_SIZE` | `500` | Tamanho dos chunks de texto |
-| `CHUNK_OVERLAP` | `100` | Sobreposição entre chunks |
-| `MODEL_NAME` | `all-MiniLM-L6-v2` | Modelo de embeddings |
-
----
-
-## 📝 Logs
-
-Todas as operações são registradas em `logs/app.log`:
-
-- Queries recebidas
-- Tools chamadas e seus argumentos/resultados
-- Chunks recuperados pelo RAG
-- Erros e avisos
+1.  **Decisão:** O `GammaAgente` analisa a query com o `SYSTEM_PROMPT` e decide quais ferramentas (em ordem sequencial) devem ser usadas.
+2.  **Execução:** O `tool_manager` orquestra as chamadas para as funções em `tools.py` ou serviços especializados como o `StudyPlannerService`.
+3.  **Contextualização:** Se necessário, o `VetorStore` recupera chunks de texto relevantes dos materiais didáticos.
+4.  **Geração:** Um gerador de resposta especializado (Normal, Quiz ou Plano de Estudo) sintetiza os dados em uma resposta amigável e formatada em Markdown.
 
 ---
 
 ## 🔮 Possíveis Melhorias
 
-- [ ] Interface web (Streamlit / FastAPI)
+- [x] Interface Web (Streamlit)
+- [x] Persistência do Vector Store em disco
 - [ ] Suporte a OCR para PDFs escaneados
-- [ ] Memória de conversação entre sessões
-- [ ] Persistência do Vector Store em disco
-- [ ] Notificações de provas e tarefas próximas
-- [ ] Autenticação multi-usuário
+- [ ] Memória de longo prazo (histórico salvo em DB)
+- [ ] Integração com Google Calendar / Notion
+- [ ] Sistema de notificações via Telegram/WhatsApp
 
-# Documentação do Dataset: Materiais Didáticos de Ciência da Computação
+---
 
-## 1. Origem
-O dataset é composto por 10 ficheiros que contêm trechos e capítulos selecionados de três das obras mais clássicas e adotadas globalmente em cursos de Ciência da Computação e Engenharia de Software:
-* **Algoritmos (Thomas H. Cormen et al.):** Focado em estruturas de dados elementares, tabelas de espalhamento (hash), árvores de busca binária e árvores vermelho-preto.
-* **Redes de Computadores e a Internet (James F. Kurose e Keith W. Ross):** Focado na camada de aplicação, cobrindo os protocolos DNS, FTP, HTTP e SMTP.
-* **Estruturas de Dados e Seus Algoritmos (Jayme Luiz Szwarcfiter e Lilian Markenzon):** Focado em algoritmos de ordenação (ex: Heapsort).
-
-## 2. Tipo
-Os dados estão estruturados no formato **PDF**.
-
-## 3. Limitações
-A natureza atual deste dataset impõe os seguintes desafios técnicos para a pipeline do RAG:
-* **Perda de Informação Semântica Visual:** Livros como o do Cormen e do Kurose dependem fortemente de diagramas, grafos, tabelas e pseudocódigos. Extratores de texto costumam achatar esta formatação, o que pode fazer com que a descrição geométrica de uma árvore binária ou de um diagrama temporal do TCP perca o sentido para o LLM.
-* **Fórmulas Matemáticas:** Livros de algoritmos contêm alta densidade de notação matemática (ex: notação Big-O, $\Theta(n~log~n)$, equações de recorrência). Extratores comuns podem quebrar estes símbolos, gerando embeddings de baixa qualidade para perguntas que envolvam complexidade computacional.
-
-## 4. Estratégia de Chunking (Fragmentação)
-Com base na execução de teste prévia (onde 1 ficheiro gerou **142 chunks**), a estratégia de chunking aplicada/recomendada para este tipo de material é a **Fragmentação por Caracteres com Sobreposição (Recursive Character Text Splitting)**:
-* **Recomendação de Overlap (Sobreposição):** Como o texto é altamente académico e os conceitos estendem-se por vários parágrafos, é fundamental utilizar um overlap de pelo menos 15% a 25% (ex: 200 caracteres de sobreposição para chunks de 1000). Isto evita que uma explicação sobre o funcionamento de uma "Árvore de Busca Binária" seja cortada a meio, prejudicando a recuperação do contexto pelo modelo de linguagem.
-* **Tratamento de Metadados:** É recomendado que o chunking anexe o metadado do número da página e o nome do ficheiro (`source`) a cada fragmento. Isto permite que o LLM cite adequadamente de onde extraiu a informação (ex: *"Segundo o Kurose (página 96), o DNS funciona..."*).
+## 📝 Documentação do Dataset
+*Consulte o final do README original para detalhes sobre as obras de Cormen, Kurose e Szwarcfiter incluídas no projeto.*
