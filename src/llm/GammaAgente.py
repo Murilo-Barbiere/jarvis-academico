@@ -225,17 +225,24 @@ class JarvisAgent:
             logger.error(f"Erro ao iniciar quiz: {e}")
             return self.gerar_resposta_final(user_query, contexto)
 
-    def encerrar_quiz(self) -> str:
+    def encerrar_quiz(self, user_query: str = "/sair quiz") -> str:
         """
         Finaliza o modo quiz e reseta o estado.
         """
         self.modo_quiz = False
         self.contexto_quiz = ""
         logger.info("MODO QUIZ: Encerrado pelo usuário.")
-        return (
+        
+        resposta = (
             "Modo Quiz finalizado! Notei alguns pontos que podemos reforçar. "
             "Gostaria de uma revisão dos tópicos onde você teve mais dificuldade?"
         )
+        
+        # Salva na memória para que o LLM saiba o que o "sim" do usuário significa
+        self.memory.add_message("user", user_query)
+        self.memory.add_message("assistant", resposta)
+        
+        return resposta
 
 # Mantendo compatibilidade com funções existentes se necessário,
 # mas encorajando o uso da classe JarvisAgent.

@@ -62,7 +62,7 @@ def main():
         
         if query.lower() == "/sair quiz":
             with console.status("[bold green]Encerrando quiz...", spinner="dots"):
-                resposta = jarvis.encerrar_quiz()
+                resposta = jarvis.encerrar_quiz(query)
             console.print(Panel(resposta, title="JARVIS", border_style="green"))
             continue
 

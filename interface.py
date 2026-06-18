@@ -471,7 +471,7 @@ def main() -> None:
 
     # Indicador de Modo Quiz
     if st.session_state.jarvis.modo_quiz:
-        st.info("💡 **Modo quiz ativo**\n\nDigite `/sair quiz` para encerrar o modo quiz.")
+        st.warning("⚠️ **MODO QUIZ ATIVO** | Digite `/sair quiz` para encerrar e ver sua revisão.")
 
     # Boas-vindas (somente sem histórico)
     if not st.session_state.messages:
@@ -491,7 +491,7 @@ def main() -> None:
     if prompt:
         # Trata comando especial de sair do quiz
         if prompt.lower() == "/sair quiz":
-            resposta = st.session_state.jarvis.encerrar_quiz()
+            resposta = st.session_state.jarvis.encerrar_quiz(prompt)
             st.session_state.messages.append({"role": "user", "content": prompt})
             st.session_state.messages.append({"role": "assistant", "content": resposta})
             st.rerun()
