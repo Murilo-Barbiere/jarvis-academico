@@ -14,6 +14,7 @@ from src.tools.tools import (
     sair_da_materia,
     listar_materias,
     obter_resumo_academico,
+    montar_revisao,
     # ── Adicionadas (eram chamadas mas não importadas) ──────────────────────
     remover_tarefa,
     alterar_tarefa,
@@ -29,7 +30,7 @@ from src.tools.study_planner import StudyPlannerService
 from src.utils.logger import registrar_tool
 
 
-def executar_tool(tool_name, argumentos, vetor_store=None):
+def executar_tool(tool_name, argumentos, vetor_store=None, historico=None):
 
     resultado = None
 
@@ -167,6 +168,9 @@ def executar_tool(tool_name, argumentos, vetor_store=None):
             resultado = buscar_material_rag(vetor_store, topico)
         else:
             resultado = {"erro": "Vector store não disponível para gerar quiz."}
+
+    elif tool_name == "montar_revisao":
+        resultado = montar_revisao(vetor_store, historico)
 
     else:
         resultado = {"erro": f"Ferramenta '{tool_name}' não encontrada."}

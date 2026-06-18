@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -197,3 +198,41 @@ def remover_horario_tool(disciplina, dia_semana, hora_inicio):
 
 def alterar_materia_tool(nome, professor=None, sala=None):
     return update_disciplina(nome, novo_professor=professor, nova_sala=sala)
+
+# ── Revisão ───────────────────────────────────────────────────────────────────
+
+def montar_revisao(vetor_store, historico):
+    """
+    Analisa o histórico para identificar o ponto de maior dificuldade (Ponto Fraco)
+    e busca conteúdo no RAG para revisão.
+    """
+    if not historico:
+        return {"status": "erro", "mensagem": "Histórico de conversa vazio."}
+
+    # Busca a última resposta do assistente que contenha "Pontos Fracos"
+    ponto_fraco = ""
+    for msg in reversed(historico):
+        if msg["role"] == "assistant":
+            conteudo = msg["content"]
+            # Procura pela seção de Pontos Fracos no formato Markdown definido no GammaAgente
+            match = re.search(r"### Pontos Fracos.*?\n(.*?)(?=\n###|$)", conteudo, re.DOTALL | re.IGNORECASE)
+            if match:
+                linhas = match.group(1).strip().split('\n')
+                # Pega a primeira linha/item da lista de pontos fracos
+                ponto_fraco = linhas[0].strip().lstrip('- ').lstrip('* ')
+                if ponto_fraco and "não há lacunas" not in ponto_fraco.lower():
+                    break
+    
+    if not ponto_fraco or "não há lacunas" in ponto_fraco.lower():
+        return {"status": "erro", "mensagem": "Não identifiquei dificuldades recentes para revisar."}
+
+    # Limpa o termo para busca (frase curta)
+    termo_busca = ponto_fraco[:100] # Limita tamanho
+    
+    contexto_rag = buscar_material_rag(vetor_store, termo_busca)
+    
+    return {
+        "status": "sucesso",
+        "ponto_fraco": ponto_fraco,
+        "contexto_rag": contexto_rag
+    }

@@ -135,19 +135,23 @@ provas, tarefas e material dos PDFs. Use quando o usuário pedir:
      - "hora_inicio": [opcional]
      - "hora_fim": [opcional]
 
-25. `iniciar_quiz`: Inicia um quiz interativo (Active Recall) sobre um conteúdo específico. Use quando o usuário pedir:
+25. `iniciar_quiz`: Inicia um NOVO quiz interativo (Active Recall) para TESTAR o conhecimento sobre um assunto. Use quando o usuário pedir:
 - Para ser testado sobre uma matéria ou tópico
-- Para fazer um quiz ou perguntas de revisão
-- "Me desafie com perguntas sobre..."
+- "Me faça perguntas sobre..."
+- "Quero um quiz de..."
+- IMPORTANTE: Não use para revisar erros de um quiz que acabou de terminar.
 - Argumentos:
-  - "topico": [obrigatório] O assunto que deve ser buscado no material para gerar o quiz.
+  - "topico": [obrigatório] O assunto para o novo teste.
 
-26. `encerrar_quiz`: Finaliza o modo de quiz interativo e volta ao modo de conversa normal. Use quando o usuário pedir:
-- Para parar o quiz
-- "Sair do quiz"
-- "Chega de perguntas"
-- "Não quero mais o quiz"
+26. `encerrar_quiz`: Finaliza o modo de quiz interativo.
 - Uso: {"tool": "encerrar_quiz", "arguments": {}}     
+
+27. `montar_revisao`: Analisa o histórico de um quiz que ACABOU DE TERMINAR para explicar o conteúdo onde o usuário falhou. Use quando o usuário pedir:
+- "Sim" (em resposta à oferta de revisão do JARVIS)
+- "Quero a revisão"
+- "Me explique o que eu errei no quiz"
+- "Quero revisar meus pontos fracos"
+- Uso: {"tool": "montar_revisao", "arguments": {}}
 
 ### LÓGICA DE SELEÇÃO
 - Dúvida sobre conteúdo (Ex: "O que é..."): Use `buscar_material_rag`.

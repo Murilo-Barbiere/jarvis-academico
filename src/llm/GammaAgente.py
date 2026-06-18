@@ -232,7 +232,10 @@ class JarvisAgent:
         self.modo_quiz = False
         self.contexto_quiz = ""
         logger.info("MODO QUIZ: Encerrado pelo usuário.")
-        return "Modo Quiz finalizado! Como posso te ajudar agora?"
+        return (
+            "Modo Quiz finalizado! Notei alguns pontos que podemos reforçar. "
+            "Gostaria de uma revisão dos tópicos onde você teve mais dificuldade?"
+        )
 
 # Mantendo compatibilidade com funções existentes se necessário,
 # mas encorajando o uso da classe JarvisAgent.

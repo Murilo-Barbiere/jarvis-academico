@@ -239,7 +239,7 @@ def _processar_mensagem(
                 })
             else:
                 try:
-                    resultado = executar_tool(nome_tool, argumentos, vetor_store)
+                    resultado = executar_tool(nome_tool, argumentos, vetor_store, historico=st.session_state.jarvis.memory.get_history())
                     resultados_acumulados.append({
                         "tool": nome_tool,
                         "status": "sucesso",

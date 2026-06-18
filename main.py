@@ -95,7 +95,7 @@ def main():
                     
                     try:
                         # Executa a tool
-                        resultado = executar_tool(nome_tool, argumentos, vetor_store)
+                        resultado = executar_tool(nome_tool, argumentos, vetor_store, historico=jarvis.memory.get_history())
                         resultados_acumulados.append({
                             "tool": nome_tool,
                             "status": "sucesso",
