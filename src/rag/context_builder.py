@@ -92,4 +92,7 @@ def gerar_contexto(
         f"{len(partes)} trechos"
     )
 
+    documentos_final = sorted(list(set(item['arquivo'] for item in unicos[:len(partes)])))
+    logger.info(f"Documentos usados para gerar o contexto final: {documentos_final}")
+
     return contexto

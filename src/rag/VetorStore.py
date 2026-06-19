@@ -1,4 +1,4 @@
-﻿import faiss
+import faiss
 import pickle
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
@@ -85,5 +85,11 @@ class VetorStore:
                 "total_chunks": self.metadados[idx]["total_chunks"],
                 "similaridade": float(score),
             })
+
+        if resultados:
+            documentos_usados = sorted(list(set(r["arquivo"] for r in resultados)))
+            logger.info(f"Documentos usados para gerar o contexto: {documentos_usados}")
+        else:
+            logger.info("Nenhum documento encontrado na busca RAG.")
 
         return resultados

@@ -16,7 +16,7 @@ def main():
     logger = configurar_logger()
     logger.info("Aplicação JARVIS Acadêmico iniciada")
 
-    from llm.Agente import get_agent
+    from src.llm.Agente import get_agent
     from src.rag.VetorStore import VetorStore
     from src.config.setting import MODEL_NAME, PDF_PATH, VECTOR_STORE_PATH
     from src.rag.chunker import preparar_documentos

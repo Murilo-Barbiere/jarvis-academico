@@ -1,4 +1,4 @@
-from llm.Agente import decidir_tool
+from src.llm.Agente import decidir_tool
 
 
 def test_decidir_tool_argumentos():
@@ -32,7 +32,7 @@ def test_json_valido():
     assert "tools" in resposta
 
 
-from llm.Agente import perguntar_llm
+from src.llm.Agente import perguntar_llm
 
 def test_perguntar_llm():
     resposta = perguntar_llm(

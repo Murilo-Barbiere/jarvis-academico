@@ -1,152 +1,166 @@
-# 🎓 JARVIS Acadêmico
+# JARVIS Acadêmico — Assistente Pessoal de Estudos
 
-O JARVIS (Journaling & Academic Retrieval Virtual Intelligent System) é um **assistente acadêmico pessoal** que opera via linguagem natural. Ele combina a potência de modelos de linguagem (LLMs) com um banco de dados operacional e um sistema de RAG (Retrieval-Augmented Generation) para ser o cérebro da sua vida universitária.
-
----
-
-## 📁 Estrutura do Projeto
-
-```
-jarvis-academico/
-├── main.py                          # Ponto de entrada (Terminal)
-├── interface.py                     # Interface Web (Streamlit)
-├── data/                            # PDFs do dataset acadêmico
-├── db/
-│   ├── agenda.db                    # Banco de dados SQLite
-│   ├── faiss.index                  # Índice vetorial persistido
-│   └── chunks_meta.pkl              # Metadados do RAG
-├── logs/
-│   └── app.log                      # Logs da aplicação
-└── src/
-    ├── config/
-    │   └── setting.py               # Configurações e variáveis de ambiente
-    ├── database/
-    │   ├── db_utils.py              # CRUD e lógica de acesso ao banco
-    │   ├── init_db.py               # Inicialização do schema
-    │   └── seed_db.py               # Dados de exemplo
-    ├── llm/
-    │   ├── Agente.py                # Orquestrador (Memória + Tools + LLM)
-    │   ├── memory.py                # Gestão de memória de curto prazo
-    │   └── SYSTEM_PROMPT.py         # Catálogo de ferramentas e regras do agente
-    ├── rag/
-    │   ├── chunker.py               # Processamento de texto em fragmentos
-    │   ├── context_builder.py       # Seleção e ranking de contexto
-    │   ├── loader.py                # Extração de texto de PDFs
-    │   └── VetorStore.py            # Busca vetorial e persistência FAISS
-    ├── tools/
-    │   ├── study_planner.py         # Serviço de geração de planos de estudo
-    │   ├── tool_manager.py          # Roteador de execução das ferramentas
-    │   └── tools.py                 # Implementação das funções de ferramenta
-    └── utils/
-        └── logger.py                # Sistema de logging centralizado
-```
+O **JARVIS Acadêmico** é um assistente universitário inteligente que integra um sistema RAG (Retrieval-Augmented Generation) com chamada de ferramentas (Tool Calling) e suporte a LLMs para auxiliar estudantes na organização de sua rotina acadêmica, gestão de tarefas e reforço de aprendizado com testes interativos.
 
 ---
 
-## 🚀 Como Executar
+## 🚀 Como Rodar o Código
 
-### 1. Instalação
+### Pré-requisitos
+* Python 3.10 ou superior instalado.
+* Chave de API de um provedor de LLM compatível com a API da OpenAI.
 
-```bash
-git clone https://github.com/seu-usuario/jarvis-academico.git
-cd jarvis-academico
-pip install -r requirements.txt
-```
+### Passo a Passo
 
-### 2. Configuração (.env)
+1. **Clonar o Repositório e Navegar até a Pasta**
+   ```bash
+   cd jarvis-academico
+   ```
 
-Crie um arquivo `.env` na raiz do projeto:
+2. **Criar e Ativar o Ambiente Virtual (Virtual Environment)**
+   ```powershell
+   # No Windows (PowerShell)
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   ```
 
-```env
-API_KEY=sua_chave_aqui
-BASE_URL=https://openrouter.ai/api/v1
-MODEL=google/gemini-pro-1.5           # Recomendado para melhor raciocínio
-```
+3. **Instalar as Dependências**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 3. Inicialização
+4. **Configurar as Variáveis de Ambiente**
+   Crie ou edite o arquivo `.env` na raiz do projeto com os seguintes dados (conforme o seu provedor de LLM):
+   ```env
+   API_KEY=sua_chave_de_api
+   BASE_URL=https://url-do-seu-provedor/v1
+   MODEL=modelo-desejado
+   ```
 
-```bash
-# Inicializar banco e dados de exemplo
-python -m src.database.init_db
-python -m src.database.seed_db
+5. **Inicializar e Alimentar o Banco de Dados**
+   O banco de dados SQLite precisa ser estruturado e, opcionalmente, populado com dados de teste:
+   ```bash
+   # Criar tabelas
+   python src/database/init_db.py
+   
+   # Popular com dados acadêmicos fictícios (opcional)
+   python src/database/seed_db.py
+   ```
 
-# Opcional: O sistema indexa os PDFs automaticamente na primeira execução
-```
+6. **Adicionar Seus PDFs para o RAG**
+   Coloque os documentos acadêmicos em formato PDF que você deseja usar para estudo dentro da pasta `data/`. Se a pasta não existir, crie-a na raiz do projeto.
 
-### 4. Escolha sua Interface
-
-**Terminal (CLI):**
-```bash
-python main.py
-```
-
-**Web (Streamlit):**
-```bash
-streamlit run interface.py
-```
-
----
-
-## 🧠 Funcionalidades Principais
-
-### 1. RAG Acadêmico
-O JARVIS "lê" seus materiais didáticos (PDFs na pasta `/data`) e responde perguntas técnicas baseadas estritamente no conteúdo fornecido, citando fontes.
-
-### 2. Gestão de Agenda e Tarefas
-Integração total com banco de dados para gerenciar aulas, provas, trabalhos e tarefas pendentes através de linguagem natural.
-
-### 3. Modo Quiz (Active Recall) 🆕
-Diga *"Me faça um quiz sobre [tópico]"* e o JARVIS entrará em modo de teste interativo. Ele formulará perguntas baseadas no seu material, avaliará suas respostas e identificará lacunas de conhecimento.
-
-### 4. Planejador de Estudos Inteligente
-Ao pedir um plano de estudos, o JARVIS cruza seus dados de agenda (prazos próximos) com o conteúdo técnico dos PDFs para criar um cronograma priorizado e focado no que realmente importa.
-
----
-
-## 🛠️ Catálogo de Ferramentas (26 Tools)
-
-O JARVIS utiliza **Multi-Tool Calling**, podendo acionar várias ferramentas para uma única frase do usuário.
-
-| Categoria | Principais Ferramentas |
-|---|---|
-| **Consulta** | `consultar_agenda`, `consultar_semana`, `listar_materias`, `obter_resumo_academico` |
-| **Escrita** | `adicionar_na_agenda`, `adicionar_tarefa`, `adicionar_materia` |
-| **Edição** | `alterar_tarefa`, `alterar_prova`, `alterar_trabalho`, `alterar_materia`, `alterar_horario` |
-| **Remoção** | `remover_tarefa`, `remover_prova`, `remover_trabalho`, `remover_horario`, `sair_da_materia` |
-| **Conhecimento** | `buscar_material_rag`, `planejar_estudos` |
-| **Interação** | `iniciar_quiz`, `encerrar_quiz`, `concluir_tarefa` |
+7. **Executar a Aplicação**
+   Você pode interagir com o JARVIS de duas formas:
+   * **Interface Web (Streamlit - Recomendado):**
+     ```bash
+     streamlit run interface.py
+     ```
+   * **Interface de Linha de Comando (CLI):**
+     ```bash
+     python main.py
+     ```
 
 ---
 
-## 🧪 Testes
+## 🧪 Como Rodar os Testes
 
+Os testes unitários e de integração foram desenvolvidos utilizando o framework `pytest`. Eles verificam desde a lógica de tomada de decisão do agente até a montagem de contextos e o fluxo de memória.
+
+Para executar todos os testes, certifique-se de que o ambiente virtual está ativo e execute:
 ```bash
 pytest
 ```
 
 ---
 
-## 🏗️ Arquitetura
+## 🧠 Lógica do Agente
 
-O JARVIS utiliza um fluxo de **Raciocínio → Ação → Observação → Síntese**:
+O fluxo de execução do JARVIS baseia-se em um pipeline dinâmico de **Planejamento, Execução de Ferramentas e Síntese de Resposta**:
 
-1.  **Decisão:** O `Agente` analisa a query com o `SYSTEM_PROMPT` e decide quais ferramentas (em ordem sequencial) devem ser usadas.
-2.  **Execução:** O `tool_manager` orquestra as chamadas para as funções em `tools.py` ou serviços especializados como o `StudyPlannerService`.
-3.  **Contextualização:** Se necessário, o `VetorStore` recupera chunks de texto relevantes dos materiais didáticos.
-4.  **Geração:** Um gerador de resposta especializado (Normal, Quiz ou Plano de Estudo) sintetiza os dados em uma resposta amigável e formatada em Markdown.
+```mermaid
+graph TD
+    A[Mensagem do Usuário] --> B[Decidir Ferramentas]
+    B -->|Usa SYSTEM_PROMPT.py| C{Precisa de Ferramentas?}
+    C -->|Sim| D[Executar Ferramenta Sequencialmente]
+    D --> E[Gerar Contexto Acumulado]
+    C -->|Não| F[Contexto Vazio/Histórico]
+    E --> G[Geração da Resposta Final]
+    F --> G
+    G --> H[Salvar na Memória Deslizante]
+    H --> I[Exibir Resposta ao Usuário]
+```
+
+1. **Tomada de Decisão (Tool Calling / Função `decidir_tool`)**:
+   Quando o usuário envia uma mensagem, o agente analisa a consulta junto ao histórico da conversa (`memory.py`). Utilizando um prompt de sistema rigoroso (`SYSTEM_PROMPT.py`), ele instrui a LLM a retornar **exclusivamente um JSON estruturado** contendo a lista de ferramentas (`tools`) necessárias e seus respectivos argumentos.
+2. **Execução Resiliente (Função `executar_tool`)**:
+   O `tool_manager.py` faz a triagem das ferramentas identificadas. Caso o usuário solicite ações compostas (ex: *"Conclua a tarefa X e me mostre a agenda de hoje"*), as ferramentas correspondentes são executadas sequencialmente, e seus resultados são consolidados em formato JSON (`contexto`).
+3. **Geração de Resposta e Síntese**:
+   O agente avalia se o fluxo exige uma formatação especial (como a criação de um plano de estudos detalhado ou o gerenciamento de perguntas de um quiz ativo). A LLM então recebe o contexto retornado pelas ferramentas e gera uma resposta final em linguagem natural formatada em Markdown.
+4. **Memória Deslizante (Active Memory)**:
+   A interação é armazenada em uma memória que mantém um limite dinâmico de até 10 mensagens para não extrapolar a janela de contexto da LLM.
 
 ---
 
-## 🔮 Possíveis Melhorias
+## 🛠️ Catálogo de Funcionalidades (Tools)
 
-- [x] Interface Web (Streamlit)
-- [x] Persistência do Vector Store em disco
-- [ ] Suporte a OCR para PDFs escaneados
-- [ ] Memória de longo prazo (histórico salvo em DB)
-- [ ] Integração com Google Calendar / Notion
-- [ ] Sistema de notificações via Telegram/WhatsApp
+O JARVIS Acadêmico expõe uma gama de ferramentas organizadas pelo tipo de operação que realizam no banco de dados e no fluxo de estudos:
+
+### 1. Consulta (Read)
+Utilizadas para visualizar o calendário, compromissos e tarefas:
+* `consultar_agenda`: Retorna as aulas agendadas para o dia e lista as provas e trabalhos previstos para os próximos 7 dias.
+* `consultar_semana`: Retorna a grade completa de horários de aula de segunda a sexta-feira.
+* `listar_materias`: Lista as disciplinas atualmente cadastradas no sistema.
+* `listar_tarefas`: Retorna todas as tarefas pendentes cadastradas.
+* `listar_tarefas_concluidas`: Apresenta o histórico de tarefas que já foram finalizadas pelo aluno.
+* `listar_provas`: Recupera todas as provas cadastradas no banco.
+* `listar_trabalhos`: Recupera todos os trabalhos cadastrados no banco.
+* `obter_resumo_academico`: Fornece um painel consolidado com a agenda do dia, tarefas pendentes, provas e trabalhos marcados para os próximos 30 dias.
+
+### 2. Escrita (Create)
+Utilizadas para cadastrar novos itens na agenda acadêmica:
+* `adicionar_na_agenda`: Adiciona um evento recorrente ou pontual à agenda (pode ser configurado para os tipos `prova`, `trabalho`, `tarefa` ou `horario`).
+* `adicionar_materia`: Insere uma nova disciplina acadêmica informando o nome, professor responsável e sala de aula.
+* `adicionar_tarefa`: Cria uma nova atividade genérica pendente no banco de dados.
+
+### 3. Edição (Update)
+Utilizadas para alterar informações ou datas de itens cadastrados:
+* `alterar_tarefa`: Permite editar a descrição ou a data de entrega de uma tarefa existente.
+* `alterar_prova`: Altera a data ou a descrição de uma prova já registrada.
+* `alterar_trabalho`: Altera a data de entrega ou a descrição de um trabalho registrado.
+* `alterar_materia`: Atualiza os dados de professor ou sala de aula de uma disciplina.
+* `alterar_horario`: Altera o horário (dia da semana, hora de início/fim) de uma aula cadastrada.
+* `concluir_tarefa`: Atualiza o status de uma tarefa pendente para "concluido".
+
+### 4. Remoção (Delete)
+Utilizadas para limpar registros do banco de dados:
+* `remover_tarefa`: Exclui em definitivo uma tarefa pendente ou concluída.
+* `remover_prova`: Remove uma prova com base na disciplina e data.
+* `remover_trabalho`: Remove um trabalho com base na disciplina e data de entrega.
+* `remover_horario`: Exclui um horário de aula específico de uma disciplina.
+* `sair_da_materia`: Remove uma matéria completa do banco de dados, excluindo em cascata todas as dependências associadas (horários, provas e trabalhos cadastrados para ela).
 
 ---
 
-## 📝 Documentação do Dataset
-*Consulte o final do README original para detalhes sobre as obras de Cormen, Kurose e Szwarcfiter incluídas no projeto.*
+## 🎓 Melhorias de Aprendizado (Active Recall & Metacognição)
+
+O diferencial pedagógico do JARVIS é o seu conjunto de ferramentas focadas em **metacognição, revisão ativa (Active Recall) e repetição espaçada**:
+
+* `planejar_estudos`: Gera um roteiro de estudos detalhado e dinâmico. O sistema calcula automaticamente os dias restantes até cada entrega ou avaliação, identifica o conteúdo relevante nos PDFs via RAG para essas disciplinas específicas, e monta um plano personalizado equilibrando tempos de estudo e prioridades.
+* `iniciar_quiz`: Inicia uma sessão de perguntas abertas sobre um tópico fornecido. O JARVIS entra em um estado interativo (`modo_quiz = True`), resgatando conceitos diretamente dos PDFs para testar os conhecimentos do usuário em tempo real.
+* `encerrar_quiz`: Finaliza o modo interativo de quiz, exibindo um balanço geral e oferecendo ao aluno a possibilidade de revisão baseada nas dificuldades apresentadas.
+* `montar_revisao`: Analisa as interações do quiz concluído, identifica automaticamente as maiores lacunas de aprendizado descritas pelo aluno na conversa (Pontos Fracos) e resgata novos trechos dos PDFs via RAG para consolidar e explicar o conteúdo no qual o usuário falhou.
+
+---
+
+## 🔍 O Coração do Sistema: Retrieval-Augmented Generation (RAG)
+
+O RAG é o mecanismo de busca semântica que alimenta cognitivamente o assistente. Diferente de uma ferramenta comum de banco de dados, ele permite ao JARVIS "ler" e compreender livros, apostilas e notas de aula em formato PDF.
+
+* **Ferramenta Principal**: `buscar_material_rag` (argumento `"pergunta"` ou `"query"`).
+* **Como Funciona**:
+  1. Os PDFs depositados na pasta `data/` são mapeados e extraídos pelo `loader.py`.
+  2. O texto de cada página é tratado e fragmentado pelo `chunker.py` em pedaços de 500 caracteres com sobreposição de 100 caracteres.
+  3. Cada bloco textual é convertido em vetores pelo modelo SentenceTransformer (`all-MiniLM-L6-v2`) e armazenado localmente em um índice FAISS (`VetorStore.py`).
+  4. Ao ser acionada, a busca converte a dúvida do usuário em um vetor de consulta, realiza uma busca de similaridade de cosseno (IndexFlatIP) no índice FAISS e recupera os trechos mais relevantes do material didático.
+  5. O `context_builder.py` filtra trechos redundantes ou excessivamente similares (usando `SequenceMatcher`) e constrói um contexto limpo respeitando os limites da janela de contexto para alimentar o raciocínio e a resposta final do modelo LLM.

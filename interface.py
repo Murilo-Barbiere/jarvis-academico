@@ -14,7 +14,7 @@ from src.config.setting import (
     PDF_PATH,
     VECTOR_STORE_PATH,
 )
-from llm.Agente import JarvisAgent
+from src.llm.Agente import JarvisAgent
 from src.rag.VetorStore import VetorStore
 from src.rag.chunker import preparar_documentos
 from src.rag.loader import ler_pdfs

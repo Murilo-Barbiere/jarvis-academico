@@ -1,4 +1,4 @@
-from llm.Agente import decidir_tool
+from src.llm.Agente import decidir_tool
 
 def test_alterar_horario_acionada():
     """Testa se a tool alterar_horario é acionada corretamente."""
