@@ -369,6 +369,10 @@ def _ui_sidebar(vetor_store: "VetorStore | None") -> str | None:
         if n_msgs:
             st.info(f"💬 **{n_msgs}** mensagem(s) no histórico")
 
+        # Indicador de Modo Quiz na Sidebar
+        if st.session_state.jarvis.modo_quiz:
+            st.warning("⚠️ **MODO QUIZ ATIVO**\n\nDigite `/sair quiz` para encerrar e ver sua revisão.")
+
         st.divider()
 
         # ── Ações Rápidas ──────────────────────────────────
@@ -469,10 +473,6 @@ def main() -> None:
     _ui_header()
     st.divider()
 
-    # Indicador de Modo Quiz
-    if st.session_state.jarvis.modo_quiz:
-        st.warning("⚠️ **MODO QUIZ ATIVO** | Digite `/sair quiz` para encerrar e ver sua revisão.")
-
     # Boas-vindas (somente sem histórico)
     if not st.session_state.messages:
         _ui_welcome()
@@ -495,6 +495,9 @@ def main() -> None:
             st.session_state.messages.append({"role": "user", "content": prompt})
             st.session_state.messages.append({"role": "assistant", "content": resposta})
             st.rerun()
+
+        # Guarda estado anterior do modo quiz para detectar início
+        modo_quiz_inicial = st.session_state.jarvis.modo_quiz
 
         # 1. Exibe mensagem do usuário
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -534,6 +537,10 @@ def main() -> None:
                 "tools_info": tools_info,
             }
         )
+
+        # Se o modo quiz foi ativado nesta resposta, força rerun para atualizar a sidebar
+        if not modo_quiz_inicial and st.session_state.jarvis.modo_quiz:
+            st.rerun()
 
 
 if __name__ == "__main__":
