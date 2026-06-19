@@ -214,7 +214,7 @@ def montar_revisao(vetor_store, historico):
     for msg in reversed(historico):
         if msg["role"] == "assistant":
             conteudo = msg["content"]
-            # Procura pela seção de Pontos Fracos no formato Markdown definido no GammaAgente
+            # Procura pela seção de Pontos Fracos no formato Markdown definido no Agente
             match = re.search(r"### Pontos Fracos.*?\n(.*?)(?=\n###|$)", conteudo, re.DOTALL | re.IGNORECASE)
             if match:
                 linhas = match.group(1).strip().split('\n')

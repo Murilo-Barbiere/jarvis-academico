@@ -4,7 +4,7 @@ import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-from src.llm.GammaAgente import decidir_tool
+from llm.Agente import decidir_tool
 from src.tools.tools import obter_resumo_academico
 
 def test_obter_resumo_academico_estrutura():

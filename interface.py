@@ -1,10 +1,3 @@
-"""
-interface.py — JARVIS Acadêmico · Interface Streamlit
-────────────────────────────────────────────────
-Execute com : streamlit run interface.py
-CLI (sem UI): python main.py
-"""
-
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -14,7 +7,6 @@ from datetime import datetime
 
 import streamlit as st
 
-# ── garante que a raiz do projeto esteja no path ────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.config.setting import (
@@ -22,16 +14,12 @@ from src.config.setting import (
     PDF_PATH,
     VECTOR_STORE_PATH,
 )
-from src.llm.GammaAgente import JarvisAgent
+from llm.Agente import JarvisAgent
 from src.rag.VetorStore import VetorStore
 from src.rag.chunker import preparar_documentos
 from src.rag.loader import ler_pdfs
 from src.tools.tool_manager import executar_tool
 from src.utils.logger import configurar_logger
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# CONFIGURAÇÃO DA PÁGINA
-# ═══════════════════════════════════════════════════════════════════════════════
 
 st.set_page_config(
     page_title="JARVIS Acadêmico",
@@ -47,10 +35,6 @@ st.set_page_config(
         )
     },
 )
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# CSS
-# ═══════════════════════════════════════════════════════════════════════════════
 
 st.markdown(
     """
@@ -79,11 +63,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# RECURSOS CACHEADOS  (compartilhados entre todas as abas/sessões)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
 @st.cache_resource(show_spinner=False)
 def _carregar_vetor_store() -> "VetorStore | None":
     """
@@ -109,12 +88,6 @@ def _carregar_vetor_store() -> "VetorStore | None":
     logger.info(f"[UI] Vector Store criado — {len(chunks)} chunks")
     return vs
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# ESTADO DA SESSÃO
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
 def _init_state() -> None:
     """Inicializa variáveis de session_state ausentes."""
     if "jarvis" not in st.session_state:
@@ -123,11 +96,6 @@ def _init_state() -> None:
     if "messages" not in st.session_state:
         # Cada item: {role, content, tool_info?, query_reescrita?}
         st.session_state.messages = []
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# CONSTANTES DE UI
-# ═══════════════════════════════════════════════════════════════════════════════
 
 _TOOL_ICONS: dict[str, str] = {
     "consultar_agenda": "📅",
@@ -251,7 +219,6 @@ def _processar_mensagem(
                         "result": resultado,
                     })
 
-                    # Identifica tools que mudam o fluxo de resposta final
                     if nome_tool == "iniciar_quiz":
                         tool_especial = "iniciar_quiz"
                     elif nome_tool == "encerrar_quiz":
@@ -290,12 +257,6 @@ def _processar_mensagem(
         "resposta": resposta,
         "tools_info": tools_info if tools_info else None,
     }
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# COMPONENTES DE UI
-# ═══════════════════════════════════════════════════════════════════════════════
-
 
 def _ui_tool_expander(tool_info: dict) -> None:
     """Expander colapsável com detalhes da ferramenta utilizada."""
@@ -453,12 +414,6 @@ def _ui_header() -> None:
             unsafe_allow_html=True,
         )
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# MAIN
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
 def main() -> None:
     _init_state()
 
@@ -481,7 +436,7 @@ def main() -> None:
     _ui_render_messages()
 
     # ── Determina o Prompt ─────────────────────────────────────────────────
-    prompt: str | None = prompt_rapido  # ação rápida tem prioridade
+    prompt: str | None = prompt_rapido 
 
     chat_input = st.chat_input("💬 Pergunte ao JARVIS…")
     if chat_input:
@@ -504,7 +459,6 @@ def main() -> None:
         with st.chat_message("user", avatar="👤"):
             st.markdown(prompt)
 
-        # 2. Processa e exibe resposta do JARVIS
         resposta = ""
         tools_info = None
 
@@ -529,7 +483,6 @@ def main() -> None:
                     resposta = f"❌ Ocorreu um erro inesperado: `{exc}`"
                     st.error(resposta)
 
-        # 3. Salva no histórico para próximas reruns
         st.session_state.messages.append(
             {
                 "role": "assistant",
@@ -538,7 +491,6 @@ def main() -> None:
             }
         )
 
-        # Se o modo quiz foi ativado nesta resposta, força rerun para atualizar a sidebar
         if not modo_quiz_inicial and st.session_state.jarvis.modo_quiz:
             st.rerun()
 

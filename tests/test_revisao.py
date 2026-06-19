@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 # Ajusta o path para importar os módulos do projeto
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-from src.llm.GammaAgente import JarvisAgent
+from llm.Agente import JarvisAgent
 from src.tools.tools import montar_revisao
 
 def test_montar_revisao_logic():

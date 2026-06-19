@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Adiciona o diretório raiz ao path para importação
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.llm.GammaAgente import get_agent
+from llm.Agente import get_agent
 
 def test_quiz_completo():
     load_dotenv()

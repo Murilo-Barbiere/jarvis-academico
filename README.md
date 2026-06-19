@@ -25,7 +25,7 @@ jarvis-academico/
     │   ├── init_db.py               # Inicialização do schema
     │   └── seed_db.py               # Dados de exemplo
     ├── llm/
-    │   ├── GammaAgente.py           # Orquestrador (Memória + Tools + LLM)
+    │   ├── Agente.py                # Orquestrador (Memória + Tools + LLM)
     │   ├── memory.py                # Gestão de memória de curto prazo
     │   └── SYSTEM_PROMPT.py         # Catálogo de ferramentas e regras do agente
     ├── rag/
@@ -130,7 +130,7 @@ pytest
 
 O JARVIS utiliza um fluxo de **Raciocínio → Ação → Observação → Síntese**:
 
-1.  **Decisão:** O `GammaAgente` analisa a query com o `SYSTEM_PROMPT` e decide quais ferramentas (em ordem sequencial) devem ser usadas.
+1.  **Decisão:** O `Agente` analisa a query com o `SYSTEM_PROMPT` e decide quais ferramentas (em ordem sequencial) devem ser usadas.
 2.  **Execução:** O `tool_manager` orquestra as chamadas para as funções em `tools.py` ou serviços especializados como o `StudyPlannerService`.
 3.  **Contextualização:** Se necessário, o `VetorStore` recupera chunks de texto relevantes dos materiais didáticos.
 4.  **Geração:** Um gerador de resposta especializado (Normal, Quiz ou Plano de Estudo) sintetiza os dados em uma resposta amigável e formatada em Markdown.
