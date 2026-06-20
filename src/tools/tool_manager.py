@@ -170,7 +170,11 @@ def executar_tool(tool_name, argumentos, vetor_store=None, historico=None):
             resultado = {"erro": "Vector store não disponível para gerar quiz."}
 
     elif tool_name == "montar_revisao":
-        resultado = montar_revisao(vetor_store, historico)
+        resultado = montar_revisao(
+            vetor_store,
+            historico,
+            assunto=argumentos.get("assunto")
+        )
 
     else:
         resultado = {"erro": f"Ferramenta '{tool_name}' não encontrada."}

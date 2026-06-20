@@ -48,10 +48,71 @@ def test_agente_decisao_revisao():
     assert nometool == "montar_revisao"
     print("✓ Gatilho de decisão ok.")
 
+def test_montar_revisao_com_assunto():
+    print("\n=== TESTE LÓGICA MONTAR REVISAO COM ASSUNTO ===")
+    
+    mock_vs = MagicMock()
+    mock_vs.buscar.return_value = [{"texto": "Conteúdo sobre HTTP...", "arquivo": "kurose-http.pdf", "similaridade": 0.95}]
+    
+    resultado = montar_revisao(mock_vs, historico=[], assunto="HTTP")
+    
+    print(f"Resultado: {json.dumps(resultado, indent=2, ensure_ascii=False)}")
+    assert resultado["status"] == "sucesso"
+    assert resultado["assunto"] == "HTTP"
+    assert len(resultado["contexto_rag"]) > 0
+    print("✓ Lógica da tool com assunto ok.")
+
+def test_agente_decisao_revisao_com_assunto():
+    print("\n=== TESTE DECISÃO DO AGENTE PARA REVISÃO COM ASSUNTO ===")
+    agent = JarvisAgent()
+    
+    query = "Quero fazer uma revisão sobre o protocolo HTTP"
+    
+    plano = agent.decidir_tool(query)
+    print(f"Plano para '{query}': {plano}")
+    
+    tools = plano.get("tools", [])
+    assert len(tools) > 0
+    nometool = tools[0]["tool"]
+    argumentos = tools[0]["arguments"]
+    
+    assert nometool == "montar_revisao"
+    assert "assunto" in argumentos
+    assert "http" in argumentos["assunto"].lower()
+    print("✓ Gatilho de decisão com assunto ok.")
+
+def test_agente_aceita_quiz_revisao():
+    print("\n=== TESTE AGENTE DECIDE INICIAR QUIZ SE USUÁRIO ACEITAR REVISÃO POR ASSUNTO ===")
+    agent = JarvisAgent()
+    
+    agent.memory.add_message("user", "Quero fazer uma revisão sobre Estrutura de Dados")
+    resposta_oferecida = (
+        "Gostaria de iniciar um questionário (modo quiz) sobre Estrutura de Dados "
+        "para fazer uma revisão personalizada, ou prefere apenas um texto?"
+    )
+    agent.memory.add_message("assistant", resposta_oferecida)
+    
+    query = "sim, quero fazer o questionário"
+    
+    plano = agent.decidir_tool(query)
+    print(f"Plano para '{query}': {plano}")
+    
+    tools = plano.get("tools", [])
+    assert len(tools) > 0
+    nometool = tools[0]["tool"]
+    argumentos = tools[0]["arguments"]
+    
+    assert nometool == "iniciar_quiz"
+    assert argumentos.get("topico") == "Estrutura de Dados"
+    print("✓ Decisão de iniciar quiz após aceitação ok.")
+
 if __name__ == "__main__":
     try:
         test_montar_revisao_logic()
         test_agente_decisao_revisao()
+        test_montar_revisao_com_assunto()
+        test_agente_decisao_revisao_com_assunto()
+        test_agente_aceita_quiz_revisao()
         print("\nTESTES CONCLUÍDOS COM SUCESSO!")
     except Exception as e:
         print(f"\nERRO NOS TESTES: {e}")
