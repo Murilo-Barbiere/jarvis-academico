@@ -201,11 +201,24 @@ def alterar_materia_tool(nome, professor=None, sala=None):
 
 # ── Revisão ───────────────────────────────────────────────────────────────────
 
-def montar_revisao(vetor_store, historico):
+def montar_revisao(vetor_store, historico, assunto=None):
     """
-    Analisa o histórico para identificar o ponto de maior dificuldade (Ponto Fraco)
+    Se 'assunto' for fornecido, busca no RAG e monta a revisão para aquele assunto.
+    Caso contrário, analisa o histórico para identificar o ponto de maior dificuldade (Ponto Fraco)
     e busca conteúdo no RAG para revisão.
     """
+    if assunto:
+        assunto_limpo = assunto.strip()
+        if not assunto_limpo:
+            return {"status": "erro", "mensagem": "Assunto fornecido está vazio."}
+        
+        contexto_rag = buscar_material_rag(vetor_store, assunto_limpo)
+        return {
+            "status": "sucesso",
+            "assunto": assunto_limpo,
+            "contexto_rag": contexto_rag
+        }
+
     if not historico:
         return {"status": "erro", "mensagem": "Histórico de conversa vazio."}
 
