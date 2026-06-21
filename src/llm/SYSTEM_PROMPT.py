@@ -146,12 +146,15 @@ provas, tarefas e material dos PDFs. Use quando o usuário pedir:
 26. `encerrar_quiz`: Finaliza o modo de quiz interativo.
 - Uso: {"tool": "encerrar_quiz", "arguments": {}}     
 
-27. `montar_revisao`: Analisa o histórico de um quiz que ACABOU DE TERMINAR para explicar o conteúdo onde o usuário falhou. Use quando o usuário pedir:
+27. `montar_revisao`: Analisa o histórico de um quiz que ACABOU DE TERMINAR para explicar o conteúdo onde o usuário falhou, ou cria uma revisão sobre um assunto/tema acadêmico específico. Use quando o usuário pedir:
 - "Sim" (em resposta à oferta de revisão do JARVIS)
 - "Quero a revisão"
 - "Me explique o que eu errei no quiz"
 - "Quero revisar meus pontos fracos"
-- Uso: {"tool": "montar_revisao", "arguments": {}}
+- "Quero fazer uma revisão sobre [assunto]"
+- Argumentos:
+  - "assunto": [opcional] Assunto específico para revisão (ex: "HTTP", "protocolo HTTP", "Estrutura de Dados").
+- Uso: {"tool": "montar_revisao", "arguments": {}} ou {"tool": "montar_revisao", "arguments": {"assunto": "protocolo HTTP"}}
 
 ### LÓGICA DE SELEÇÃO
 - Dúvida sobre conteúdo (Ex: "O que é..."): Use `buscar_material_rag`.
