@@ -164,3 +164,25 @@ O RAG é o mecanismo de busca semântica que alimenta cognitivamente o assistent
   3. Cada bloco textual é convertido em vetores pelo modelo SentenceTransformer (`all-MiniLM-L6-v2`) e armazenado localmente em um índice FAISS (`VetorStore.py`).
   4. Ao ser acionada, a busca converte a dúvida do usuário em um vetor de consulta, realiza uma busca de similaridade de cosseno (IndexFlatIP) no índice FAISS e recupera os trechos mais relevantes do material didático.
   5. O `context_builder.py` filtra trechos redundantes ou excessivamente similares (usando `SequenceMatcher`) e constrói um contexto limpo respeitando os limites da janela de contexto para alimentar o raciocínio e a resposta final do modelo LLM.
+
+
+# Documentação do Dataset: Materiais Didáticos de Ciência da Computação
+
+## 1. Origem
+O dataset é composto por 9 ficheiros que contêm trechos e capítulos selecionados de três das obras mais clássicas e adotadas globalmente em cursos de Ciência da Computação e Engenharia de Software:
+* **Algoritmos (Thomas H. Cormen et al.):** Focado em estruturas de dados elementares, tabelas de espalhamento (hash), árvores de busca binária e árvores vermelho-preto.
+* **Redes de Computadores e a Internet (James F. Kurose e Keith W. Ross):** Focado na camada de aplicação, cobrindo os protocolos DNS, FTP, HTTP e SMTP.
+* **Estruturas de Dados e Seus Algoritmos (Jayme Luiz Szwarcfiter e Lilian Markenzon):** Focado em algoritmos de ordenação (ex: Heapsort).
+
+## 2. Tipo
+Os dados estão estruturados no formato **PDF**.
+
+## 3. Limitações
+A natureza atual deste dataset impõe os seguintes desafios técnicos para a pipeline do RAG:
+* **Perda de Informação Semântica Visual:** Livros como o do Cormen e do Kurose dependem fortemente de diagramas, grafos, tabelas e pseudocódigos. Extratores de texto costumam achatar esta formatação, o que pode fazer com que a descrição geométrica de uma árvore binária ou de um diagrama temporal do TCP perca o sentido para o LLM.
+* **Fórmulas Matemáticas:** Livros de algoritmos contêm alta densidade de notação matemática (ex: notação Big-O, $\Theta(n~log~n)$, equações de recorrência). Extratores comuns podem quebrar estes símbolos, gerando embeddings de baixa qualidade para perguntas que envolvam complexidade computacional.
+
+## 4. Estratégia de Chunking (Fragmentação)
+Com base na execução de teste prévia (onde 1 ficheiro gerou **142 chunks**), a estratégia de chunking aplicada/recomendada para este tipo de material é a **Fragmentação por Caracteres com Sobreposição (Recursive Character Text Splitting)**:
+* **Recomendação de Overlap (Sobreposição):** Como o texto é altamente académico e os conceitos estendem-se por vários parágrafos, é fundamental utilizar um overlap de pelo menos 15% a 25% (ex: 200 caracteres de sobreposição para chunks de 1000). Isto evita que uma explicação sobre o funcionamento de uma "Árvore de Busca Binária" seja cortada a meio, prejudicando a recuperação do contexto pelo modelo de linguagem.
+* **Tratamento de Metadados:** É recomendado que o chunking anexe o metadado do número da página e o nome do ficheiro (`source`) a cada fragmento. Isto permite que o LLM cite adequadamente de onde extraiu a informação (ex: *"Segundo o Kurose (página 96), o DNS funciona..."*).
